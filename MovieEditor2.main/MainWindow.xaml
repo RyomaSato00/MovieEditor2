@@ -7,6 +7,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:myControls="clr-namespace:MyControls;assembly=MyControls"
         xmlns:movieListUI="clr-namespace:MovieEditor2.MovieListUI;assembly=MovieEditor2.MovieListUI"
+        xmlns:commonSettingUI="clr-namespace:MovieEditor2.CommonSettingUI;assembly=MovieEditor2.CommonSettingUI"
         Style="{StaticResource MaterialDesignWindow}"
         mc:Ignorable="d"
         Title="MovieEditor" Height="450" Width="800">
@@ -14,7 +15,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />     <!--ファイル数＆共通設定-->
             <RowDefinition Height="Auto" />     <!--区切り線-->
-            <RowDefinition Height="*" />        <!--ファイル-->
+            <RowDefinition Height="*" />        <!--編集領域-->
             <RowDefinition Height="Auto" />     <!--区切り線-->
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
@@ -38,8 +39,33 @@
         <!--区切り線-->
         <Separator Grid.Row="1" Margin="0,4,0,4" />
 
-        <!--ファイル-->
-        <movieListUI:MovieFilesDataGrid Grid.Row="2" Margin="8,0,8,0" DataContext="{Binding MovieFilesUI}" />
+        <!--編集領域-->
+        <Grid Grid.Row="2" Margin="8,0,8,0" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <movieListUI:MovieFilesDataGrid Grid.Column="0" DataContext="{Binding MovieFilesUI}" />
+
+            <!--縦区切り線-->
+            <Separator Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" /> 
+
+            <!--共通設定（折りたたみ可能）-->
+            <Expander Grid.Column="2" ExpandDirection="Left" IsExpanded="True" >
+                <Expander.Header>
+                    <myControls:IconTextBlock Icon="Cog" Text="共通設定" >
+                        <!--ヘッダを時計回りに90度回転させる-->
+                        <myControls:IconTextBlock.LayoutTransform>
+                            <RotateTransform Angle="90" />
+                        </myControls:IconTextBlock.LayoutTransform>
+                    </myControls:IconTextBlock>
+                </Expander.Header>
+
+                <commonSettingUI:CommonSettingBoard DataContext="{Binding CommonSettingUI}" />
+            </Expander>
+        </Grid>
 
         <!--区切り線-->
         <Separator Grid.Row="3" Margin="0,4,0,4" />

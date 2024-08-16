@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
+using MovieEditor2.CommonSettingUI.ViewModels;
 using MovieEditor2.MovieListUI.ViewModels;
 
 namespace MovieEditor2.main.ViewModels;
@@ -22,4 +23,6 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
 
 
     public MovieFilesDataGridViewModel MovieFilesUI { get; } = new();
+
+    public CommonSettingBoardViewModel CommonSettingUI { get; } = new();
 }

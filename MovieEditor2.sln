@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyControls", "MyControls\My
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieEditor2.Models", "MovieEditor2.Models\MovieEditor2.Models.csproj", "{4911541C-448E-42F5-ABAF-0393FF87BD7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieEditor2.CommonSettingUI", "MovieEditor2.CommonSettingUI\MovieEditor2.CommonSettingUI.csproj", "{6BBD9847-ACA9-4EC0-B2EB-72BE0A4BCE2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{4911541C-448E-42F5-ABAF-0393FF87BD7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4911541C-448E-42F5-ABAF-0393FF87BD7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4911541C-448E-42F5-ABAF-0393FF87BD7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BBD9847-ACA9-4EC0-B2EB-72BE0A4BCE2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BBD9847-ACA9-4EC0-B2EB-72BE0A4BCE2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BBD9847-ACA9-4EC0-B2EB-72BE0A4BCE2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BBD9847-ACA9-4EC0-B2EB-72BE0A4BCE2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
