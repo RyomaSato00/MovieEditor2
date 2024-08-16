@@ -1,0 +1,51 @@
+﻿<Window x:Class="MovieEditor2.main.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MovieEditor2.main"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:myControls="clr-namespace:MyControls;assembly=MyControls"
+        xmlns:movieListUI="clr-namespace:MovieEditor2.MovieListUI;assembly=MovieEditor2.MovieListUI"
+        Style="{StaticResource MaterialDesignWindow}"
+        mc:Ignorable="d"
+        Title="MovieEditor" Height="450" Width="800">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />     <!--ファイル数＆共通設定-->
+            <RowDefinition Height="Auto" />     <!--区切り線-->
+            <RowDefinition Height="*" />        <!--ファイル-->
+            <RowDefinition Height="Auto" />     <!--区切り線-->
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <!--ファイル数＆共通設定-->
+        <Grid Grid.Row="0" Margin="8,0,8,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="ファイル数：" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{Binding FilesCount}" VerticalAlignment="Center" />
+            <Button Grid.Column="3" >
+                <myControls:IconTextBlock Icon="Cog" Text="共通設定" />
+            </Button>
+        </Grid>
+
+        <!--区切り線-->
+        <Separator Grid.Row="1" Margin="0,4,0,4" />
+
+        <!--ファイル-->
+        <movieListUI:MovieFilesDataGrid Grid.Row="2" Margin="8,0,8,0" DataContext="{Binding MovieFilesUI}" />
+
+        <!--区切り線-->
+        <Separator Grid.Row="3" Margin="0,4,0,4" />
+
+        <Button Grid.Row="4" HorizontalAlignment="Center" FontWeight="Bold" FontSize="18" >
+            <myControls:IconTextBlock Icon="RunFast" Text="実行" />
+        </Button>
+    </Grid>
+</Window>

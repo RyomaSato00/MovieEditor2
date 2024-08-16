@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieEditor2.main", "MovieEditor2.main\MovieEditor2.main.csproj", "{31E17216-9AC1-4FEA-93BB-591EBE913120}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieEditor2.MovieListUI", "MovieEditor2.MovieListUI\MovieEditor2.MovieListUI.csproj", "{05F9940C-4A4F-4509-B72C-B1CFFBEF9D41}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyControls", "MyControls\MyControls.csproj", "{426A478C-E745-453E-A8D7-CDD54843C24A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieEditor2.Models", "MovieEditor2.Models\MovieEditor2.Models.csproj", "{4911541C-448E-42F5-ABAF-0393FF87BD7F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{31E17216-9AC1-4FEA-93BB-591EBE913120}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31E17216-9AC1-4FEA-93BB-591EBE913120}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31E17216-9AC1-4FEA-93BB-591EBE913120}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31E17216-9AC1-4FEA-93BB-591EBE913120}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05F9940C-4A4F-4509-B72C-B1CFFBEF9D41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05F9940C-4A4F-4509-B72C-B1CFFBEF9D41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05F9940C-4A4F-4509-B72C-B1CFFBEF9D41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05F9940C-4A4F-4509-B72C-B1CFFBEF9D41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{426A478C-E745-453E-A8D7-CDD54843C24A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{426A478C-E745-453E-A8D7-CDD54843C24A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{426A478C-E745-453E-A8D7-CDD54843C24A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{426A478C-E745-453E-A8D7-CDD54843C24A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4911541C-448E-42F5-ABAF-0393FF87BD7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4911541C-448E-42F5-ABAF-0393FF87BD7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4911541C-448E-42F5-ABAF-0393FF87BD7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4911541C-448E-42F5-ABAF-0393FF87BD7F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

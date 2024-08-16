@@ -1,0 +1,26 @@
+<UserControl x:Class="MyControls.IconTextBlock"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MyControls"
+             xmlns:converters="clr-namespace:Converters"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Name="Root">
+    <UserControl.Resources>
+        <converters:StringToPackIconKindConverter x:Key="StringToPackIconKindConverter" />
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="{Binding Space, ElementName=Root}" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <materialDesign:PackIcon Grid.Column="0" Kind="{Binding Icon, ElementName=Root, Converter={StaticResource StringToPackIconKindConverter}}"
+            Width="{Binding IconSize, ElementName=Root}" Height="{Binding IconSize, ElementName=Root}" />
+        <TextBlock Grid.Column="2" Text="{Binding Text, ElementName=Root}" FontSize="{Binding TextSize, ElementName=Root}" />
+    </Grid>
+</UserControl>
