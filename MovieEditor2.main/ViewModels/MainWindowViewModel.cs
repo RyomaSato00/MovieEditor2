@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 using MovieEditor2.CommonSettingUI.ViewModels;
 using MovieEditor2.MovieListUI.ViewModels;
@@ -25,4 +26,23 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     public MovieFilesDataGridViewModel MovieFilesUI { get; } = new();
 
     public CommonSettingBoardViewModel CommonSettingUI { get; } = new();
+
+    // 遷移画面インデックス
+    [ObservableProperty] private int _slideIndex = 0;
+
+    /// <summary>
+    /// 個別編集画面へ遷移する
+    /// </summary>
+    [RelayCommand] private void IndividualSlide()
+    {
+        SlideIndex = 1;
+    }
+
+    /// <summary>
+    /// ホーム画面へ遷移する
+    /// </summary>
+    [RelayCommand] private void HomeSlide()
+    {
+        SlideIndex = 0;
+    }
 }

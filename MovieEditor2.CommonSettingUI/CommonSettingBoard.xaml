@@ -28,7 +28,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <TabControl  >
+        <TabControl materialDesign:ColorZoneAssist.Mode="PrimaryLight" >
             <TabItem Header="動画圧縮" >
                 <Border BorderBrush="Gray" BorderThickness="1" Margin="0,8,0,8">
                     <Grid Margin="8">

@@ -8,6 +8,7 @@
         xmlns:myControls="clr-namespace:MyControls;assembly=MyControls"
         xmlns:movieListUI="clr-namespace:MovieEditor2.MovieListUI;assembly=MovieEditor2.MovieListUI"
         xmlns:commonSettingUI="clr-namespace:MovieEditor2.CommonSettingUI;assembly=MovieEditor2.CommonSettingUI"
+        xmlns:individualUI="clr-namespace:MovieEditor2.IndividualUI;assembly=MovieEditor2.IndividualUI"
         Style="{StaticResource MaterialDesignWindow}"
         mc:Ignorable="d"
         Title="MovieEditor" Height="450" Width="800">
@@ -25,47 +26,36 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="ファイル数：" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="1" Text="{Binding FilesCount}" VerticalAlignment="Center" />
-            <Button Grid.Column="3" >
-                <myControls:IconTextBlock Icon="Cog" Text="共通設定" />
+            <Button Grid.Column="0" 
+                Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                Style="{StaticResource MaterialDesignToolButton}" 
+                Command="{Binding HomeSlideCommand}" >
+                <materialDesign:PackIcon Kind="Home" Width="20" Height="20" />
             </Button>
+            <TextBlock Grid.Column="1" Margin="24,0,0,0" Text="ファイル数：" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="2" Text="{Binding FilesCount}" VerticalAlignment="Center" />
+            <Button Grid.Column="3" Margin="24,0,0,0" Content="test" Command="{Binding IndividualSlideCommand}"/>
         </Grid>
 
         <!--区切り線-->
         <Separator Grid.Row="1" Margin="0,4,0,4" />
 
-        <!--編集領域-->
-        <Grid Grid.Row="2" Margin="8,0,8,0" >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <movieListUI:MovieFilesDataGrid Grid.Column="0" DataContext="{Binding MovieFilesUI}" />
-
-            <!--縦区切り線-->
-            <Separator Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" /> 
-
-            <!--共通設定（折りたたみ可能）-->
-            <Expander Grid.Column="2" ExpandDirection="Left" IsExpanded="True" >
-                <Expander.Header>
-                    <myControls:IconTextBlock Icon="Cog" Text="共通設定" >
-                        <!--ヘッダを時計回りに90度回転させる-->
-                        <myControls:IconTextBlock.LayoutTransform>
-                            <RotateTransform Angle="90" />
-                        </myControls:IconTextBlock.LayoutTransform>
-                    </myControls:IconTextBlock>
-                </Expander.Header>
-
-                <commonSettingUI:CommonSettingBoard DataContext="{Binding CommonSettingUI}" />
-            </Expander>
-        </Grid>
+        <!--編集領域(画面遷移あり)-->
+        <materialDesign:Transitioner Grid.Row="2" SelectedIndex="{Binding SlideIndex}" >
+            <!--ホーム-->
+            <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect None}">
+                <local:HomeSlide />
+            </materialDesign:TransitionerSlide>
+        
+            <!--個別編集-->
+            <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect SlideInFromRight}">
+                <individualUI:IndividualSlide />
+            </materialDesign:TransitionerSlide>
+        </materialDesign:Transitioner>
 
         <!--区切り線-->
         <Separator Grid.Row="3" Margin="0,4,0,4" />

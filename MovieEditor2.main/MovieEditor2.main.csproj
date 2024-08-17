@@ -17,6 +17,7 @@
     <ProjectReference Include="..\MyControls\MyControls.csproj" />
     <ProjectReference Include="..\MovieEditor2.Models\MovieEditor2.Models.csproj" />
     <ProjectReference Include="..\MovieEditor2.CommonSettingUI\MovieEditor2.CommonSettingUI.csproj" />
+    <ProjectReference Include="..\MovieEditor2.IndividualUI\MovieEditor2.IndividualUI.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
