@@ -35,7 +35,7 @@ public partial class ItemInfo : ObservableObject
     public ItemInfo(string filePath)
     {
         FilePath = filePath;
-        FileName = Path.GetFileNameWithoutExtension(filePath);
+        FileName = Path.GetFileName(filePath);
 
         OriginalInfo = MovieInfo.ToMovieInfo(filePath);
 

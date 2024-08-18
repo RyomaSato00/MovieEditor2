@@ -53,7 +53,7 @@
         
             <!--個別編集-->
             <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect SlideInFromRight}">
-                <individualUI:IndividualSlide />
+                <individualUI:IndividualSlide DataContext="{Binding IndividualSlideUI}" />
             </materialDesign:TransitionerSlide>
         </materialDesign:Transitioner>
 

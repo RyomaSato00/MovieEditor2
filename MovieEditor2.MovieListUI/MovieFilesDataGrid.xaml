@@ -74,23 +74,19 @@
                                 </Grid.ColumnDefinitions>
                             
                                 <!--ファイル名-->
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding FileName}" />
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding FileName}" FontFamily="Consolas" />
 
                                 <!--動画時間情報-->
                                 <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
                                     <TextBlock Text="{Binding Trimming.Duration, StringFormat={}{0:mm\\:ss\\.fff}}" FontFamily="Consolas" />
-                                    <TextBlock Text="(" Margin="4,0,0,0" FontFamily="Consolas" />
-                                    <TextBlock Text="{Binding Trimming.StartPoint, Converter={StaticResource TrimmingPointConverter}, ConverterParameter=Start}" FontFamily="Consolas" />
-                                    <TextBlock Text="-" FontFamily="Consolas" />
-                                    <TextBlock Text="{Binding Trimming.EndPoint, Converter={StaticResource TrimmingPointConverter}, ConverterParameter=End}" FontFamily="Consolas" />
-                                    <TextBlock Text=")" FontFamily="Consolas" />
+                                    <TextBlock Text="{Binding Trimming.StartPoint, Converter={StaticResource TrimmingPointConverter}, ConverterParameter=Start, StringFormat=({0}}" FontFamily="Consolas" Margin="4,0,0,0" />
+                                    <TextBlock Text="{Binding Trimming.EndPoint, Converter={StaticResource TrimmingPointConverter}, ConverterParameter=End, StringFormat=-{0})}" FontFamily="Consolas" />
                                 </StackPanel>
 
                                 <!--動画サイズ情報-->
                                 <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
                                     <TextBlock Text="{Binding OriginalInfo.Width}" FontFamily="Consolas" />
-                                    <TextBlock Text=":" FontFamily="Consolas" />
-                                    <TextBlock Text="{Binding OriginalInfo.Height}" FontFamily="Consolas" />
+                                    <TextBlock Text="{Binding OriginalInfo.Height, StringFormat=:{0}}" FontFamily="Consolas" />
                                     <TextBlock Text="(W:H)" FontFamily="Consolas" Margin="4,0,0,0" />
                                 </StackPanel>
 
@@ -102,28 +98,11 @@
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OriginalInfo.FrameRate, StringFormat={}{0:F2} fps}" FontFamily="Consolas" />
 
                                 <!--動画コーデック情報-->
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OriginalInfo.VideoCodec}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OriginalInfo.VideoCodec}" FontFamily="Consolas" />
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-
-                <!-- by default a DataGridTextColumn will have the MaterialDesignDataGridTextColumnStyle and MaterialDesignDataGridTextColumnEditingStyle applied. See DataGridAssist.ApplyMaterialDesignColumnStyles attached property -->
-                <!-- <DataGridTextColumn Binding="{Binding Code}" Header="Code" /> -->
-
-                <!-- <DataGridTemplateColumn Header="Template Column">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate DataType="{x:Type domain:SelectableViewModel}">
-                            <TextBlock FontSize="14" FontStyle="Italic" Text="{Binding Name}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-
-                    <DataGridTemplateColumn.CellEditingTemplate>
-                        <DataTemplate DataType="{x:Type domain:SelectableViewModel}">
-                            <TextBox Foreground="{DynamicResource SecondaryHueMidBrush}" Text="{Binding Name}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellEditingTemplate>
-                </DataGridTemplateColumn> -->
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

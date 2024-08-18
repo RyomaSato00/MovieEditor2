@@ -1,0 +1,94 @@
+<UserControl x:Class="MovieEditor2.IndividualUI.MovieArea"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MovieEditor2.IndividualUI"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Storyboard x:Key="TimelineStory" SlipBehavior="Slip" >
+            <MediaTimeline Source="{Binding Item.FilePath}"
+                Storyboard.TargetName="MoviePlayer"
+                BeginTime="{Binding Position, ElementName=MoviePlayer}"
+                Duration="{Binding NaturalDuration, ElementName=MoviePlayer}"
+                CurrentTimeInvalidated="Timeline_CurrentTimeInvalidated"
+                />
+        </Storyboard>
+
+        <Style x:Key="PlayTimeStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="8,0,0,0" />
+        </Style>
+
+        <Binding x:Key="Time2SliderBinding"
+            Path="CurrentTime.TotalMilliseconds"
+            RelativeSource="{RelativeSource AncestorType=UserControl}"
+            Mode="OneWay" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />        <!--動画-->
+            <RowDefinition Height="Auto" />     <!--スライダー-->
+            <RowDefinition Height="Auto" />     <!--動画情報-->
+        </Grid.RowDefinitions>
+
+        <!--動画-->
+        <MediaElement Grid.Row="0" Name="MoviePlayer" LoadedBehavior="Manual" ScrubbingEnabled="True"
+            HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8"
+            Loaded="MoviePlayer_Loaded" />
+
+        <!--スライダー-->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />       <!--再生・停止ボタン-->
+                <ColumnDefinition Width="*" />          <!--スライダー-->
+                <ColumnDefinition Width="Auto" />       <!--現在時刻-->
+                <ColumnDefinition Width="Auto" />       <!--総合長さ-->
+            </Grid.ColumnDefinitions>
+
+            <!--再生・停止ボタン-->
+            <ToggleButton Grid.Column="0" Name="PlayToggle" Checked="Toggle_Checked" Unchecked="Toggle_Unchecked">
+                <!--IsChecked=FalseのときはPlayアイコン、IsChecked=TrueのときはPauseアイコンを表示する-->
+                <ToggleButton.Style>
+                    <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignFlatToggleButton}">
+                        <Setter Property="Content">
+                            <Setter.Value>
+                                <materialDesign:PackIcon Kind="Play" Width="18" Height="18" />
+                            </Setter.Value>
+                        </Setter>
+
+                        <Style.Triggers>
+                            <!--IsChecked=TrueのときにPropertyを以下のように変更する-->
+                            <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource Self}}" Value="True">
+                                <Setter Property="Content">
+                                    <Setter.Value>
+                                        <materialDesign:PackIcon Kind="Pause" Width="18" Height="18" />
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+            </ToggleButton>
+
+            <!--スライダー（ValueのBindingはソース→UI方向のみ）-->
+            <Slider Grid.Column="1" Name="TimeSlider" VerticalAlignment="Center" Margin="8,0,0,0"
+                Maximum="{Binding Item.OriginalInfo.Duration.TotalMilliseconds}"
+                Value="{Binding CurrentTime.TotalMilliseconds, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"
+                Thumb.DragStarted="TimeSlider_DragStarted" Thumb.DragCompleted="TimeSlider_DragCompleted" />
+
+            <!--現在時刻-->
+            <TextBlock Grid.Column="2" Style="{StaticResource PlayTimeStyle}"
+                Text="{Binding CurrentTime, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat={}{0:mm\\:ss\\.fff}}" />
+
+            <!--総合長さ-->
+            <TextBlock Grid.Column="3" Style="{StaticResource PlayTimeStyle}"
+                Text="{Binding Item.OriginalInfo.Duration, StringFormat= / {0:mm\\:ss\\.fff}}" />
+        </Grid>
+    </Grid>
+</UserControl>

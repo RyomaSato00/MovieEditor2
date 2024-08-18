@@ -11,7 +11,7 @@ public partial class TrimmingInfo : ObservableObject
     [ObservableProperty] private TimeSpan? _endPoint = null;
 
     /// <summary> 動画長さ </summary>
-    public TimeSpan Duration { get; set; }
+    [ObservableProperty] private TimeSpan _duration;
 
     /// <summary> 元動画の動画長さ </summary>
     private readonly TimeSpan _originalDuration;

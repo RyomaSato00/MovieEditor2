@@ -7,6 +7,43 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="testing..." HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />     <!--ファイル名-->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="{Binding Item.FileName}" Margin="8,0,8,0" FontSize="12" FontFamily="Consolas" />
+
+        <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />      <!--動画表示-->
+                <ColumnDefinition Width="Auto" />   <!--区切り線-->
+                <ColumnDefinition Width="350" />    <!--編集設定エリア-->
+            </Grid.ColumnDefinitions>
+
+            <!--動画表示-->
+            <local:MovieArea Grid.Column="0" x:Name="MyMovieArea" />
+
+            <!--縦区切り線-->
+            <Separator Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" />
+
+            <!--編集設定エリア-->
+            <TreeView Grid.Column="2" >
+                <TreeViewItem Header="トリミング" IsExpanded="True" >
+                    <TreeViewItem>
+                        <TreeViewItem.Header>
+                            <!--動画表示エリアから動画の現在時刻を取得する-->
+                            <local:TrimmingArea CurrentTime="{Binding CurrentTime, ElementName=MyMovieArea, Mode=OneWay}" />
+                        </TreeViewItem.Header>
+                    </TreeViewItem>
+                </TreeViewItem>
+                <TreeViewItem Header="クリッピング">
+                </TreeViewItem>
+                <TreeViewItem Header="回転">
+                </TreeViewItem>
+                <TreeViewItem Header="再生速度">
+                </TreeViewItem>
+            </TreeView>
+        </Grid>
     </Grid>
 </UserControl>
