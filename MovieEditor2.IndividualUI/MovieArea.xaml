@@ -8,15 +8,6 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <Storyboard x:Key="TimelineStory" SlipBehavior="Slip" >
-            <MediaTimeline Source="{Binding Item.FilePath}"
-                Storyboard.TargetName="MoviePlayer"
-                BeginTime="{Binding Position, ElementName=MoviePlayer}"
-                Duration="{Binding NaturalDuration, ElementName=MoviePlayer}"
-                CurrentTimeInvalidated="Timeline_CurrentTimeInvalidated"
-                />
-        </Storyboard>
-
         <Style x:Key="PlayTimeStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Consolas" />
             <Setter Property="FontSize" Value="12" />
@@ -24,10 +15,15 @@
             <Setter Property="Margin" Value="8,0,0,0" />
         </Style>
 
-        <Binding x:Key="Time2SliderBinding"
-            Path="CurrentTime.TotalMilliseconds"
-            RelativeSource="{RelativeSource AncestorType=UserControl}"
-            Mode="OneWay" />
+        <local:IndexToVisibilityConverter x:Key="Index2VisibilityConverter" />
+
+        <Storyboard x:Key="MovieStory" SlipBehavior="Slip">
+            <MediaTimeline Source="{Binding FilePath, RelativeSource={RelativeSource AncestorType=UserControl}}" Storyboard.TargetName="MoviePlayer"
+                BeginTime="{Binding Position, ElementName=MoviePlayer}"
+                Duration="{Binding NaturalDuration, ElementName=MoviePlayer}"
+                CurrentTimeInvalidated="Timeline_CurrentTimeInvalidated"
+                Completed="Timeline_Completed" />
+        </Storyboard>
     </UserControl.Resources>
 
     <Grid>
@@ -37,10 +33,43 @@
             <RowDefinition Height="Auto" />     <!--動画情報-->
         </Grid.RowDefinitions>
 
-        <!--動画-->
-        <MediaElement Grid.Row="0" Name="MoviePlayer" LoadedBehavior="Manual" ScrubbingEnabled="True"
-            HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8"
-            Loaded="MoviePlayer_Loaded" />
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!--動画-->
+            <MediaElement Grid.Column="0" Name="MoviePlayer" LoadedBehavior="Manual" ScrubbingEnabled="True"
+                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8"
+                MediaOpened="MoviePlayer_MediaOpened" />
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" >
+                <!--前へボタン-->
+                <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding PreviousMovieCommand}" >
+                    <materialDesign:PackIcon Kind="Triangle" Width="18" Height="18"/>
+                    <!--これ以上前に戻れないときはボタンを非表示-->
+                    <Button.Visibility>
+                        <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="previous">
+                            <Binding Path="ItemIndex" />
+                            <Binding Path="ItemsSource.Count" />
+                        </MultiBinding>
+                    </Button.Visibility>
+                </Button>
+
+                <!--次へボタン-->
+                <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding NextMovieCommand}" Margin="0,4,0,0" >
+                    <materialDesign:PackIcon Kind="TriangleDown" Width="18" Height="18" />
+                    <!--これ以上次に進めないときはボタンを非表示-->
+                    <Button.Visibility>
+                        <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="next">
+                            <Binding Path="ItemIndex" />
+                            <Binding Path="ItemsSource.Count" />
+                        </MultiBinding>
+                    </Button.Visibility>
+                </Button>
+            </StackPanel>
+        </Grid>
 
         <!--スライダー-->
         <Grid Grid.Row="1">
@@ -78,9 +107,13 @@
 
             <!--スライダー（ValueのBindingはソース→UI方向のみ）-->
             <Slider Grid.Column="1" Name="TimeSlider" VerticalAlignment="Center" Margin="8,0,0,0"
-                Maximum="{Binding Item.OriginalInfo.Duration.TotalMilliseconds}"
+                Maximum="{Binding MaxTime.TotalMilliseconds, RelativeSource={RelativeSource AncestorType=UserControl}}"
                 Value="{Binding CurrentTime.TotalMilliseconds, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"
-                Thumb.DragStarted="TimeSlider_DragStarted" Thumb.DragCompleted="TimeSlider_DragCompleted" />
+                IsSelectionRangeEnabled="True"
+                SelectionStart="{Binding Item.Trimming.StartPoint.TotalMilliseconds, Mode=OneWay}"
+                SelectionEnd="{Binding Item.Trimming.EndPoint.TotalMilliseconds, Mode=OneWay}"
+                Thumb.DragStarted="TimeSlider_DragStarted" Thumb.DragCompleted="TimeSlider_DragCompleted"
+                ValueChanged="TimeSlider_ValueChanged" />
 
             <!--現在時刻-->
             <TextBlock Grid.Column="2" Style="{StaticResource PlayTimeStyle}"
@@ -88,7 +121,9 @@
 
             <!--総合長さ-->
             <TextBlock Grid.Column="3" Style="{StaticResource PlayTimeStyle}"
-                Text="{Binding Item.OriginalInfo.Duration, StringFormat= / {0:mm\\:ss\\.fff}}" />
+                Text="{Binding MaxTime, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat= / {0:mm\\:ss\\.fff}}" />
         </Grid>
     </Grid>
+
+
 </UserControl>

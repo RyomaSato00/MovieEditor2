@@ -22,7 +22,7 @@
             </Grid.ColumnDefinitions>
 
             <!--動画表示-->
-            <local:MovieArea Grid.Column="0" x:Name="MyMovieArea" />
+            <local:MovieArea Grid.Column="0" x:Name="MyMovieArea" FilePath="{Binding Item.FilePath}" />
 
             <!--縦区切り線-->
             <Separator Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" />
@@ -46,4 +46,12 @@
             </TreeView>
         </Grid>
     </Grid>
+
+    <UserControl.InputBindings>
+        <!--Sを押したらトリミング開始位置指定-->
+        <KeyBinding Key="S" Command="{Binding PinStartPointCommand}" CommandParameter="{Binding CurrentTime, ElementName=MyMovieArea}" />
+
+        <!--Eを押したらトリミング終了位置指定-->
+        <KeyBinding Key="E" Command="{Binding PinEndPointCommand}" CommandParameter="{Binding CurrentTime, ElementName=MyMovieArea}" />
+    </UserControl.InputBindings>
 </UserControl>

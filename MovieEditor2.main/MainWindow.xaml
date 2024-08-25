@@ -26,8 +26,6 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0" 
@@ -36,9 +34,8 @@
                 Command="{Binding HomeSlideCommand}" >
                 <materialDesign:PackIcon Kind="Home" Width="20" Height="20" />
             </Button>
-            <TextBlock Grid.Column="1" Margin="24,0,0,0" Text="ファイル数：" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="2" Text="{Binding FilesCount}" VerticalAlignment="Center" />
-            <Button Grid.Column="3" Margin="24,0,0,0" Content="test" Command="{Binding IndividualSlideCommand}"/>
+            <TextBlock Grid.Column="1" Text="{Binding Items.Count, StringFormat=ファイル数：{0}}"
+                FontFamily="Consolas" Margin="24,0,0,0" VerticalAlignment="Center" />
         </Grid>
 
         <!--区切り線-->
@@ -60,8 +57,20 @@
         <!--区切り線-->
         <Separator Grid.Row="3" Margin="0,4,0,4" />
 
-        <Button Grid.Row="4" HorizontalAlignment="Center" FontWeight="Bold" FontSize="18" >
-            <myControls:IconTextBlock Icon="RunFast" Text="実行" />
-        </Button>
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="出力先：" VerticalAlignment="Center" />
+            <myControls:PathBox Grid.Column="1" Width="400" Margin="8,0,0,0" Text="{Binding OutputDirectory}" />
+
+            <Button Grid.Column="5" HorizontalAlignment="Center" Margin="16,0,16,0" FontWeight="Bold" FontSize="18" Command="{Binding RunCommand}" >
+                <myControls:IconTextBlock Icon="RunFast" Text="実行" />
+            </Button>
+        </Grid>
     </Grid>
 </Window>

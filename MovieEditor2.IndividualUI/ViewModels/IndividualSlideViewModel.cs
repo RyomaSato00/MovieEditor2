@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.IO;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,14 +11,35 @@ namespace MovieEditor2.IndividualUI.ViewModels;
 
 public partial class IndividualSlideViewModel : ObservableObject
 {
+    public IndividualSlideViewModel(ObservableCollection<ItemInfo> items)
+    {
+        ItemsSource = items;
+    }
+
+    /// <summary> 動画ファイルリスト </summary>
+    public ObservableCollection<ItemInfo> ItemsSource { get; }
+
     // ターゲット動画ファイル
     [ObservableProperty] private ItemInfo? _item = null;
+
+    // ターゲット動画ファイルのインデックス
+    [ObservableProperty] private int? _itemIndex = null;
 
     // トリミング設定
 
     [ObservableProperty] private string _trimStartImage = string.Empty;
 
     [ObservableProperty] private string _trimEndImage = string.Empty;
+
+    /// <summary>
+    /// indexによりItemを選択する
+    /// </summary>
+    /// <param name="index"></param>
+    public void SelectItem(int index)
+    {
+        Item = ItemsSource[index];
+        ItemIndex = index;
+    }
 
     /// <summary>
     /// トリミング開始位置を指定する
@@ -28,6 +50,9 @@ public partial class IndividualSlideViewModel : ObservableObject
         if(Item is null) return;
 
         Item.Trimming.StartPoint = point;
+
+        // 開始位置のサムネイル取得
+        TrimStartImage = MovieFileProcessor.GetThumbnailPath(Item.FilePath, point);
     }
 
     /// <summary>
@@ -39,8 +64,38 @@ public partial class IndividualSlideViewModel : ObservableObject
         if(Item is null) return;
 
         Item.Trimming.EndPoint = point;
+
+        //　終了位置のサムネイル取得
+        TrimEndImage = MovieFileProcessor.GetThumbnailPath(Item.FilePath, point);
     }
 
+    /// <summary>
+    /// 前の動画に移動する
+    /// </summary>
+    [RelayCommand] private void PreviousMovie()
+    {
+        if(ItemIndex is null) return;
+
+        if(0 < ItemIndex)
+        {
+            ItemIndex--;
+            Item = ItemsSource[ItemIndex.Value];
+        }
+    }
+
+    /// <summary>
+    /// 次の動画に移動する
+    /// </summary>
+    [RelayCommand] private void NextMovie()
+    {
+        if(ItemIndex is null) return;
+
+        if(ItemIndex < ItemsSource.Count - 1)
+        {
+            ItemIndex++;
+            Item = ItemsSource[ItemIndex.Value];
+        }
+    }
 
     /// <summary>
     /// Infoが変更されたときの処理

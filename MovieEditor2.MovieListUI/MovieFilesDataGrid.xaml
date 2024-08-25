@@ -52,7 +52,15 @@
                 <DataGridTemplateColumn Header="サムネイル">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding ThumbnailPath}" Height="72" />
+                            <Image Source="{Binding ThumbnailPath}" Height="72" >
+                                <!--MouseDownイベント時にEditIndividualCommandを実行する-->
+                                <xamlBehaviorsWpf:Interaction.Triggers>
+                                    <xamlBehaviorsWpf:EventTrigger EventName="MouseDown">
+                                        <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding DataContext.EditIndividualCommand, Source={x:Reference DataContextProxy}}"
+                                            CommandParameter="{Binding}" />
+                                    </xamlBehaviorsWpf:EventTrigger>
+                                </xamlBehaviorsWpf:Interaction.Triggers>
+                            </Image>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

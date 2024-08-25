@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.IO;
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 using MovieEditor2.Models;
 
@@ -10,12 +11,17 @@ namespace MovieEditor2.MovieListUI.ViewModels;
 
 public partial class MovieFilesDataGridViewModel : ObservableObject
 {
-    public MovieFilesDataGridViewModel()
+    public MovieFilesDataGridViewModel(ObservableCollection<ItemInfo> items)
     {
+        ItemsSource = items;
+
         // ItemsSourceの中身が変更されたときのイベントハンドラを設定
         ItemsSource.CollectionChanged += OnNewItemsAdded;
         ItemsSource.CollectionChanged += OnItemsCountChanged;
     }
+
+    /// <summary> 個別編集画面遷移要求通知 </summary>
+    public event Action<int>? OnEditIndividual = null;
 
     // ItemsSourceの要素数が0のときに表示するメッセージ
     [ObservableProperty] private string _defaultMessage = "ここに動画ファイルをドロップしてください";
@@ -23,7 +29,7 @@ public partial class MovieFilesDataGridViewModel : ObservableObject
     [ObservableProperty] private bool _isDataGridVisible = false;
 
     /// <summary> DataGridの中身 </summary>
-    public ObservableCollection<ItemInfo> ItemsSource { get; } = [];
+    public ObservableCollection<ItemInfo> ItemsSource { get; }
 
 
     /// <summary>
@@ -131,4 +137,13 @@ public partial class MovieFilesDataGridViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// 個別編集画面へ遷移する
+    /// </summary>
+    /// <param name="info"></param>
+    [RelayCommand] private void EditIndividual(ItemInfo info)
+    {
+        var index = ItemsSource.IndexOf(info);
+        OnEditIndividual?.Invoke(index);
+    }
 }
