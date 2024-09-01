@@ -36,15 +36,14 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Image Grid.Row="0" Grid.Column="0" Style="{StaticResource ImageStyle}" Source="{Binding TrimStartImage}" />  <!--トリミング開始位置Image-->
+        <Image Grid.Row="0" Grid.Column="0" Style="{StaticResource ImageStyle}" Source="{Binding Item.Trimming.TrimStartImage}" />  <!--トリミング開始位置Image-->
         <materialDesign:PackIcon Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Kind="ArrowRightBold" Width="20" Height="20" />
-        <Image Grid.Row="0" Grid.Column="2" Style="{StaticResource ImageStyle}" Source="{Binding TrimEndImage}" />  <!--トリミング終了位置Image-->
+        <Image Grid.Row="0" Grid.Column="2" Style="{StaticResource ImageStyle}" Source="{Binding Item.Trimming.TrimEndImage}" />  <!--トリミング終了位置Image-->
 
         <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
             <!--トリミング開始位置を指定。CommandParameterはMovieAreaのCurrentを指定-->
             <Button Command="{Binding PinStartPointCommand}" CommandParameter="{Binding CurrentTime, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
-                Style="{StaticResource MaterialDesignToolButton}" >
+                Style="{StaticResource MaterialDesignIconForegroundButton}" >
                 <materialDesign:PackIcon Kind="MovieOpenCheck" Width="18" Height="18" />
             </Button>
             <TextBox Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="開始時刻" Text="{Binding Item.Trimming.StartPoint, StringFormat={}{0:mm\\:ss\\.fff}}" />
@@ -53,8 +52,7 @@
         <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
             <!--トリミング終了位置を指定。CommandParameterはMovieAreaのCurrentを指定-->
             <Button Command="{Binding PinEndPointCommand}" CommandParameter="{Binding CurrentTime, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
-                Style="{StaticResource MaterialDesignToolButton}" >
+                Style="{StaticResource MaterialDesignIconForegroundButton}" >
                 <materialDesign:PackIcon Kind="MovieOpenCheck" Width="18" Height="18" />
             </Button>
             <TextBox Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="終了時刻" Text="{Binding Item.Trimming.EndPoint, StringFormat={}{0:mm\\:ss\\.fff}}" />

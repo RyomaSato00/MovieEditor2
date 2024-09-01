@@ -31,7 +31,7 @@ public class FileDropBehavior : Behavior<UserControl>
     {
         base.OnAttached();
         AssociatedObject.AllowDrop = true;
-        AssociatedObject.DragEnter += OnDragEnter;
+        AssociatedObject.PreviewDragOver += OnDragOver;
         AssociatedObject.Drop += OnDrop;
     }
 
@@ -42,7 +42,7 @@ public class FileDropBehavior : Behavior<UserControl>
     protected override void OnDetaching()
     {
         base.OnDetaching();
-        AssociatedObject.DragEnter -= OnDragEnter;
+        AssociatedObject.PreviewDragOver -= OnDragOver;
         AssociatedObject.Drop -= OnDrop;
     }
 
@@ -51,7 +51,7 @@ public class FileDropBehavior : Behavior<UserControl>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnDragEnter(object sender, DragEventArgs e)
+    private void OnDragOver(object sender, DragEventArgs e)
     {
         // ドラッグされているデータがファイルである場合、コピーエフェクトを表示する
         if(e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -62,6 +62,7 @@ public class FileDropBehavior : Behavior<UserControl>
         {
             e.Effects = DragDropEffects.None;
         }
+        e.Handled = true;
     }
 
     /// <summary>
@@ -83,7 +84,19 @@ public class FileDropBehavior : Behavior<UserControl>
         // ファイルパスからItemInfoオブジェクトを生成
         foreach(var file in files)
         {
-            DroppedFiles.Add(new ItemInfo(file));
+            try
+            {
+                DroppedFiles.Add(new ItemInfo(file));
+            }
+            // 拡張子非対応
+            catch(ArgumentOutOfRangeException exception)
+            {
+                System.Diagnostics.Debug.WriteLine($"{exception.Message}:{exception.ParamName}");
+            }
+            catch(Exception exception)
+            {
+                System.Diagnostics.Debug.WriteLine($"{exception}");
+            }
         }
     }
 }

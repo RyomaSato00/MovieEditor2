@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MyControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:xamlBehaviorsWpf="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -14,11 +15,18 @@
         </Grid.ColumnDefinitions>
 
         <TextBox Grid.Column="0" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}" FontFamily="Consolas"
-            materialDesign:HintAssist.Hint="フォルダを指定" />
+            materialDesign:HintAssist.Hint="フォルダを指定" >
+            <xamlBehaviorsWpf:Interaction.Behaviors>
+                <!--コンテキストメニューに「エクスプローラーで開く」を追加-->
+                <local:OpenExplorerBehavior />
+                
+                <!--ドラッグ＆ドロップでテキストを更新-->
+                <local:TextDropBehavior />
+            </xamlBehaviorsWpf:Interaction.Behaviors>
+        </TextBox>
+
         <Button Grid.Column="1" Click="Reference_Click"  Margin="8,0,0,0"
-            Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
-            Style="{StaticResource MaterialDesignToolButton}" 
-        >
+            Style="{StaticResource MaterialDesignPaperButton}" >
             <StackPanel Orientation="Horizontal">
                 <materialDesign:PackIcon Kind="FolderOpen" Width="18" Height="18" />
                 <TextBlock Text="参照" VerticalAlignment="Center" Margin="4,0,0,0" FontSize="12" />

@@ -41,7 +41,7 @@ public partial class ItemInfo : ObservableObject
 
         ThumbnailPath = MovieFileProcessor.GetThumbnailPath(filePath, TimeSpan.Zero);
 
-        Trimming = new TrimmingInfo(OriginalInfo.Duration);
+        Trimming = new TrimmingInfo(OriginalInfo.Duration, OriginalInfo.FrameRate, filePath);
     }
 
     /// <summary> IsSelectedが変更されたときの処理 </summary>

@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
+using MovieEditor2.Models;
+
 namespace MovieEditor2.MovieListUI.ViewModels;
 
 public partial class TrimmingInfo : ObservableObject
@@ -13,6 +15,12 @@ public partial class TrimmingInfo : ObservableObject
     /// <summary> 動画長さ </summary>
     [ObservableProperty] private TimeSpan _duration;
 
+    /// <summary> トリミング開始位置のサムネイル </summary>
+    [ObservableProperty] private string _trimStartImage;
+
+    /// <summary> トリミング終了位置のサムネイル </summary>
+    [ObservableProperty] private string _trimEndImage;
+
     /// <summary> 元動画の動画長さ </summary>
     private readonly TimeSpan _originalDuration;
 
@@ -20,10 +28,19 @@ public partial class TrimmingInfo : ObservableObject
     ///
     /// </summary>
     /// <param name="originalDuration">元動画の動画長さ</param>
-    public TrimmingInfo(TimeSpan originalDuration)
+    public TrimmingInfo(TimeSpan originalDuration, double frameRate, string filePath)
     {
         _originalDuration = originalDuration;
         Duration = originalDuration;
+
+        // 開始位置のサムネイル取得
+        TrimStartImage = MovieFileProcessor.GetThumbnailPath(filePath, TimeSpan.Zero);
+
+        // 終了位置の時刻（動画長さ - 1フレーム）を取得
+        var endPosition = originalDuration.TotalSeconds - 1 / frameRate;
+
+        // 終了位置のサムネイル取得
+        TrimEndImage = MovieFileProcessor.GetThumbnailPath(filePath, TimeSpan.FromSeconds(endPosition));
     }
 
     /// <summary>

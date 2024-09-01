@@ -12,65 +12,70 @@
         Style="{StaticResource MaterialDesignWindow}"
         mc:Ignorable="d"
         Title="MovieEditor" Height="450" Width="800">
-    <Grid Margin="8">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />     <!--ファイル数＆共通設定-->
-            <RowDefinition Height="Auto" />     <!--区切り線-->
-            <RowDefinition Height="*" />        <!--編集領域-->
-            <RowDefinition Height="Auto" />     <!--区切り線-->
-            <RowDefinition Height="40" />
-        </Grid.RowDefinitions>
-
-        <!--ファイル数＆共通設定-->
-        <Grid Grid.Row="0" Margin="8,0,8,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <Button Grid.Column="0" 
-                Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
-                Style="{StaticResource MaterialDesignToolButton}" 
-                Command="{Binding HomeSlideCommand}" >
-                <materialDesign:PackIcon Kind="Home" Width="20" Height="20" />
-            </Button>
-            <TextBlock Grid.Column="1" Text="{Binding Items.Count, StringFormat=ファイル数：{0}}"
-                FontFamily="Consolas" Margin="24,0,0,0" VerticalAlignment="Center" />
-        </Grid>
-
-        <!--区切り線-->
-        <Separator Grid.Row="1" Margin="0,4,0,4" />
-
-        <!--編集領域(画面遷移あり)-->
-        <materialDesign:Transitioner Grid.Row="2" SelectedIndex="{Binding SlideIndex}" >
-            <!--ホーム-->
-            <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect None}">
-                <local:HomeSlide />
-            </materialDesign:TransitionerSlide>
+    <Grid>
+        <materialDesign:DialogHost Identifier="ProgressDialog" />
+        <materialDesign:DialogHost Identifier="DeleteCompletedDialog" />
         
-            <!--個別編集-->
-            <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect SlideInFromRight}">
-                <individualUI:IndividualSlide DataContext="{Binding IndividualSlideUI}" />
-            </materialDesign:TransitionerSlide>
-        </materialDesign:Transitioner>
+        <Grid Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />     <!--ファイル数＆共通設定-->
+                <RowDefinition Height="Auto" />     <!--区切り線-->
+                <RowDefinition Height="*" />        <!--編集領域-->
+                <RowDefinition Height="Auto" />     <!--区切り線-->
+                <RowDefinition Height="40" />
+            </Grid.RowDefinitions>
 
-        <!--区切り線-->
-        <Separator Grid.Row="3" Margin="0,4,0,4" />
 
-        <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            <!--ファイル数＆共通設定-->
+            <Grid Grid.Row="0" Margin="8,0,8,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="出力先：" VerticalAlignment="Center" />
-            <myControls:PathBox Grid.Column="1" Width="400" Margin="8,0,0,0" Text="{Binding OutputDirectory}" />
+                <Button Grid.Column="0" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding HomeSlideCommand}" >
+                    <materialDesign:PackIcon Kind="Home" Width="20" Height="20" />
+                </Button>
+                <TextBlock Grid.Column="1" Text="{Binding Items.Count, StringFormat=ファイル数：{0}}"
+                    FontFamily="Consolas" Margin="24,0,0,0" VerticalAlignment="Center" />
+                <Button Grid.Column="2" Margin="24,0,0,0" Content="test" />
+            </Grid>
 
-            <Button Grid.Column="5" HorizontalAlignment="Center" Margin="16,0,16,0" FontWeight="Bold" FontSize="18" Command="{Binding RunCommand}" >
-                <myControls:IconTextBlock Icon="RunFast" Text="実行" />
-            </Button>
+            <!--区切り線-->
+            <Separator Grid.Row="1" Margin="0,4,0,4" />
+
+            <!--編集領域(画面遷移あり)-->
+            <materialDesign:Transitioner Grid.Row="2" SelectedIndex="{Binding SlideIndex}" >
+                <!--ホーム-->
+                <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect None}">
+                    <local:HomeSlide />
+                </materialDesign:TransitionerSlide>
+            
+                <!--個別編集-->
+                <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect SlideInFromRight}">
+                    <individualUI:IndividualSlide DataContext="{Binding IndividualSlideUI}" />
+                </materialDesign:TransitionerSlide>
+            </materialDesign:Transitioner>
+
+            <!--区切り線-->
+            <Separator Grid.Row="3" Margin="0,4,0,4" />
+
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="出力先：" VerticalAlignment="Center" />
+                <myControls:PathBox Grid.Column="1" Width="400" Margin="8,0,0,0" Text="{Binding OutputDirectory}" />
+
+                <Button Grid.Column="5" HorizontalAlignment="Center" Margin="16,0,16,0" FontWeight="Bold" FontSize="18" Command="{Binding RunCommand}" >
+                    <myControls:IconTextBlock Icon="RunFast" Text="実行" />
+                </Button>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

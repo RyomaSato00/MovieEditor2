@@ -25,12 +25,6 @@ public partial class IndividualSlideViewModel : ObservableObject
     // ターゲット動画ファイルのインデックス
     [ObservableProperty] private int? _itemIndex = null;
 
-    // トリミング設定
-
-    [ObservableProperty] private string _trimStartImage = string.Empty;
-
-    [ObservableProperty] private string _trimEndImage = string.Empty;
-
     /// <summary>
     /// indexによりItemを選択する
     /// </summary>
@@ -52,7 +46,7 @@ public partial class IndividualSlideViewModel : ObservableObject
         Item.Trimming.StartPoint = point;
 
         // 開始位置のサムネイル取得
-        TrimStartImage = MovieFileProcessor.GetThumbnailPath(Item.FilePath, point);
+        Item.Trimming.TrimStartImage = MovieFileProcessor.GetThumbnailPath(Item.FilePath, point);
     }
 
     /// <summary>
@@ -66,7 +60,7 @@ public partial class IndividualSlideViewModel : ObservableObject
         Item.Trimming.EndPoint = point;
 
         //　終了位置のサムネイル取得
-        TrimEndImage = MovieFileProcessor.GetThumbnailPath(Item.FilePath, point);
+        Item.Trimming.TrimEndImage = MovieFileProcessor.GetThumbnailPath(Item.FilePath, point);
     }
 
     /// <summary>
@@ -95,25 +89,5 @@ public partial class IndividualSlideViewModel : ObservableObject
             ItemIndex++;
             Item = ItemsSource[ItemIndex.Value];
         }
-    }
-
-    /// <summary>
-    /// Infoが変更されたときの処理
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    partial void OnItemChanged(ItemInfo? value)
-    {
-        // Infoがnullのときは何もしない
-        if (value is null) return;
-
-        // 開始位置のサムネイル取得
-        TrimStartImage = MovieFileProcessor.GetThumbnailPath(value.FilePath, TimeSpan.Zero);
-
-        // 終了位置の時刻（動画長さ - 1フレーム）を取得
-        var endPosition = value.OriginalInfo.Duration.TotalSeconds - 1 / value.OriginalInfo.FrameRate;
-
-        // 終了位置のサムネイル取得
-        TrimEndImage = MovieFileProcessor.GetThumbnailPath(value.FilePath, TimeSpan.FromSeconds(endPosition));
     }
 }

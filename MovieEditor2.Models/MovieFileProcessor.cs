@@ -76,7 +76,7 @@ public class MovieFileProcessor
             // ファイルパス ＝ ディレクトリパス/ファイル名(重複回避番号).拡張子
             filePath = Path.Combine(
                 directoryPath,
-                $"{fileName}{duplicateCount}{extension}"
+                $"{fileName}({duplicateCount}){extension}"
             );
             duplicateCount++;
 

@@ -45,7 +45,7 @@ public record MovieInfo
         // 動画ファイルとして対応した拡張子か確認する
         if (false == MovieFileExtension.Contains(Path.GetExtension(filePath)))
         {
-            throw new ArgumentOutOfRangeException(Path.GetFileName(filePath), "この拡張子は対応していません。");
+            throw new ArgumentOutOfRangeException(Path.GetExtension(filePath), "この拡張子は対応していません");
         }
 
         // FFProbeを使用して動画ファイル情報を取得する

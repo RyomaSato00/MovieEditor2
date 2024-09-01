@@ -31,6 +31,20 @@
 
         <DataGrid ItemsSource="{Binding ItemsSource}" Visibility="{Binding IsDataGridVisible, Converter={StaticResource Bool2VisibilityConverter}}"
             AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All">
+            <DataGrid.ItemContainerStyle>
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}" >
+                    <!--コンテキストメニュー-->
+                    <Setter Property="ContextMenu" >
+                        <Setter.Value>
+                            <ContextMenu>
+                                <MenuItem Header="削除" Icon="{materialDesign:PackIcon Kind=Delete}" Command="{Binding DataContext.DeleteItemCommand, Source={x:Reference DataContextProxy}}" CommandParameter="{Binding}" />
+                                <MenuItem Header="複製" Icon="{materialDesign:PackIcon Kind=FileDocumentMultiple}" Command="{Binding DataContext.CloneItemCommand, Source={x:Reference DataContextProxy}}" CommandParameter="{Binding}" />
+                            </ContextMenu>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.ItemContainerStyle>
+
             <DataGrid.Columns>
                 <!--チェックボックス-->
                 <DataGridCheckBoxColumn Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}">
@@ -52,7 +66,7 @@
                 <DataGridTemplateColumn Header="サムネイル">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding ThumbnailPath}" Height="72" >
+                            <Image Source="{Binding ThumbnailPath}" Height="72" Width="128" >
                                 <!--MouseDownイベント時にEditIndividualCommandを実行する-->
                                 <xamlBehaviorsWpf:Interaction.Triggers>
                                     <xamlBehaviorsWpf:EventTrigger EventName="MouseDown">
@@ -77,7 +91,7 @@
                                 </Grid.RowDefinitions>
 
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="400" />
+                                    <ColumnDefinition Width="350" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                             

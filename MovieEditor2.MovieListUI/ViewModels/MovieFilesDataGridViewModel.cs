@@ -146,4 +146,22 @@ public partial class MovieFilesDataGridViewModel : ObservableObject
         var index = ItemsSource.IndexOf(info);
         OnEditIndividual?.Invoke(index);
     }
+
+    /// <summary>
+    /// アイテムを削除する
+    /// </summary>
+    /// <param name="info"></param>
+    [RelayCommand] private void DeleteItem(ItemInfo info)
+    {
+        ItemsSource.Remove(info);
+    }
+
+    /// <summary>
+    /// アイテムを複製する
+    /// </summary>
+    /// <param name="info"></param>
+    [RelayCommand] private void CloneItem(ItemInfo info)
+    {
+        ItemsSource.Add(new ItemInfo(info.FilePath));
+    }
 }
