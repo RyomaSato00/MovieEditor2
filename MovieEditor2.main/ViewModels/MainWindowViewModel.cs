@@ -17,11 +17,15 @@ namespace MovieEditor2.main.ViewModels;
 
 internal partial class MainWindowViewModel : ObservableObject, IDisposable
 {
-    /// <summary> 処理進捗ダイアログの識別文字列 </summary>
-    public static readonly string ProgressDialogIdentifier = "ProgressDialog";
+    /// <summary> スライド番号 </summary>
+    private enum Slides
+    {
+        Home,
+        Individual
+    }
 
-    /// <summary> 処理済みファイル削除確認ダイアログの識別文字列 </summary>
-    public static readonly string DeleteCompletedDialogIdentifier = "DeleteCompletedDialog";
+    /// <summary> MainWindow中央に表示するダイアログの識別文字列 </summary>
+    public static readonly string MainWindowDialogIdentifier = "MainWindowDialog";
 
     public MainWindowViewModel(UserSetting userSetting)
     {
@@ -67,7 +71,7 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     public IndividualSlideViewModel IndividualSlideUI { get; }
 
     // 遷移画面インデックス
-    [ObservableProperty] private int _slideIndex = 0;
+    [ObservableProperty] private int _slideIndex = (int)Slides.Home;
 
     // ファイル出力先ディレクトリ
     [ObservableProperty] private string _outputDirectory = string.Empty;
@@ -77,7 +81,7 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     /// </summary>
     private void IndividualSlide()
     {
-        SlideIndex = 1;
+        SlideIndex = (int)Slides.Individual;
     }
 
     /// <summary>
@@ -86,14 +90,47 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void HomeSlide()
     {
-        SlideIndex = 0;
+        SlideIndex = (int)Slides.Home;
     }
 
     /// <summary>
-    /// 実行コマンド
+    /// 個別編集画面時、動画の再生・停止を切り替える
     /// </summary>
     [RelayCommand]
-    private async Task Run()
+    private void TogglePlay()
+    {
+        // 個別編集画面？
+        if(SlideIndex == (int)Slides.Individual)
+        {
+            IndividualSlideUI.TogglePlay();
+        }
+    }
+
+    /// <summary>
+    /// 動画圧縮処理実行コマンド
+    /// </summary>
+    [RelayCommand]
+    private async Task Compress()
+    {
+        await Run(FFmpegCommandConverter.ToCompressCommand);
+    }
+
+    /// <summary>
+    /// 画像出力処理実行コマンド
+    /// </summary>
+    /// <returns></returns>
+    [RelayCommand]
+    private async Task GenerateImages()
+    {
+        await Run(FFmpegCommandConverter.ToImagesCommand);
+    }
+
+    /// <summary>
+    /// 並列処理実行処理
+    /// </summary>
+    /// <param name="commandConverter">FFmpegコマンド生成処理</param>
+    /// <returns></returns>
+    private async Task Run(Func<ItemInfo, CommonSettingBoardViewModel, string, string> commandConverter)
     {
         // チェックが入っているアイテムだけを入力とする
         var sources = Items.Where(item => item.IsSelected).ToArray();
@@ -104,18 +141,23 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
         _ = OpenProgressDialog(process, sources.Length);
 
         // 並列処理実行
-        await Task.Run(() => process.RunParallelly(sources, CommonSettingUI, OutputDirectory));
+        await Task.Run(
+            () => process.RunParallelly(
+                sources,
+                item => commandConverter(item, CommonSettingUI, OutputDirectory)
+                )
+            );
 
         // 並列処理が終了したらダイアログを閉じる
-        DialogHost.Close(ProgressDialogIdentifier);
+        DialogHost.Close(MainWindowDialogIdentifier);
 
         // 「処理済みファイルをリストから削除しますか？」
         var isDeleteRequested = await OpenDeleteCompletedDialog();
 
         // 処理済みファイルをリストから削除する場合
-        if(isDeleteRequested)
+        if (isDeleteRequested)
         {
-            foreach(var file in process.CompletedFiles)
+            foreach (var file in process.CompletedFiles)
             {
                 Items.Remove(file);
             }
@@ -143,7 +185,7 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
         object? view = new ProcessDialog { DataContext = viewModel };
 
         // ダイアログ表示
-        await DialogHost.Show(view, ProgressDialogIdentifier, null, null, null);
+        await DialogHost.Show(view, MainWindowDialogIdentifier, null, null, null);
     }
 
     /// <summary>
@@ -156,7 +198,7 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
         object? view = new YesNoMessageBox { Text = "処理済みファイルをリストから削除しますか？" };
 
         // ダイアログ表示
-        object? result = await DialogHost.Show(view, DeleteCompletedDialogIdentifier, null, null, null);
+        object? result = await DialogHost.Show(view, MainWindowDialogIdentifier, null, null, null);
 
         // 「はい」か「いいえ」を押せばここにはこないはず
         if (result is null)

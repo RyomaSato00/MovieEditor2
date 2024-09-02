@@ -7,7 +7,7 @@ namespace MovieEditor2.main.Library;
 
 internal class ParallelCommandProcessor : IDisposable
 {
-    /// <summary> プロセス完了イベント </summary>
+    /// <summary> プロセス進捗イベント </summary>
     public event Action? OnProgressed = null;
 
     private static readonly object ParallelLock = new();
@@ -21,7 +21,12 @@ internal class ParallelCommandProcessor : IDisposable
     /// <summary> 処理済みファイル </summary>
     public List<ItemInfo> CompletedFiles { get; } = [];
 
-    public void RunParallelly(ItemInfo[] sources, CommonSettingBoardViewModel setting, string outputDirectory)
+    /// <summary>
+    /// 並列実行
+    /// </summary>
+    /// <param name="sources"></param>
+    /// <param name="commandConverter">コマンドコンバータ</param>
+    public void RunParallelly(ItemInfo[] sources, Func<ItemInfo, string> commandConverter)
     {
         try
         {
@@ -35,7 +40,7 @@ internal class ParallelCommandProcessor : IDisposable
                 var info = new ProcessStartInfo("ffmpeg")
                 {
                     // FFmpegのコマンドを取得する
-                    Arguments = FFmpegCommandConverter.ToCompressCommand(item, setting, outputDirectory),
+                    Arguments = commandConverter(item),
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };

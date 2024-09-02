@@ -13,8 +13,7 @@
         mc:Ignorable="d"
         Title="MovieEditor" Height="450" Width="800">
     <Grid>
-        <materialDesign:DialogHost Identifier="ProgressDialog" />
-        <materialDesign:DialogHost Identifier="DeleteCompletedDialog" />
+        <materialDesign:DialogHost Identifier="MainWindowDialog" />
         
         <Grid Margin="8">
             <Grid.RowDefinitions>
@@ -72,10 +71,24 @@
                 <TextBlock Grid.Column="0" Text="出力先：" VerticalAlignment="Center" />
                 <myControls:PathBox Grid.Column="1" Width="400" Margin="8,0,0,0" Text="{Binding OutputDirectory}" />
 
-                <Button Grid.Column="5" HorizontalAlignment="Center" Margin="16,0,16,0" FontWeight="Bold" FontSize="18" Command="{Binding RunCommand}" >
-                    <myControls:IconTextBlock Icon="RunFast" Text="実行" />
-                </Button>
+                <Menu Grid.Column="5" HorizontalAlignment="Center" Margin="16,0,16,0" >
+                    <MenuItem >
+                        <MenuItem.Header>
+                            <materialDesign:ColorZone Mode="PrimaryMid" Padding="16,8,16,8">
+                                <myControls:IconTextBlock Icon="RunFast" Text="実行" FontWeight="Bold" TextSize="16" />
+                            </materialDesign:ColorZone>
+                        </MenuItem.Header>
+
+                        <MenuItem Header="動画圧縮" Icon="{materialDesign:PackIcon Kind=ArrowCollapseVertical}" Command="{Binding CompressCommand}" />
+                        <MenuItem Header="画像出力" Icon="{materialDesign:PackIcon Kind=ImageMultiple}" Command="{Binding GenerateImagesCommand}" />
+                    </MenuItem>
+                </Menu>
             </Grid>
         </Grid>
     </Grid>
+
+    <Window.InputBindings>
+        <!--スペースキーを押したら動画の再生・停止（個別編集画面時）-->
+        <KeyBinding Key="Space" Command="{Binding TogglePlayCommand}" />
+    </Window.InputBindings>
 </Window>

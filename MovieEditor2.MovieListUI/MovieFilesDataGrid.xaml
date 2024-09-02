@@ -66,7 +66,8 @@
                 <DataGridTemplateColumn Header="サムネイル">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding ThumbnailPath}" Height="72" Width="128" >
+                            <!--サムネイルはトリミング開始位置と同期させる-->
+                            <Image Source="{Binding Trimming.TrimStartImage}" Height="72" Width="128" >
                                 <!--MouseDownイベント時にEditIndividualCommandを実行する-->
                                 <xamlBehaviorsWpf:Interaction.Triggers>
                                     <xamlBehaviorsWpf:EventTrigger EventName="MouseDown">

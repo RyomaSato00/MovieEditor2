@@ -10,6 +10,8 @@ namespace MovieEditor2.MovieListUI;
 
 public class FileDropBehavior : Behavior<UserControl>
 {
+    public static readonly object ParallelLock = new();
+
     public static readonly DependencyProperty DroppedFilesProperty =
     DependencyProperty.Register(nameof(DroppedFiles), typeof(ObservableCollection<ItemInfo>), typeof(FileDropBehavior), new PropertyMetadata(null));
 
@@ -54,7 +56,7 @@ public class FileDropBehavior : Behavior<UserControl>
     private void OnDragOver(object sender, DragEventArgs e)
     {
         // ドラッグされているデータがファイルである場合、コピーエフェクトを表示する
-        if(e.Data.GetDataPresent(DataFormats.FileDrop))
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
             e.Effects = DragDropEffects.Copy;
         }
@@ -70,33 +72,49 @@ public class FileDropBehavior : Behavior<UserControl>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnDrop(object sender, DragEventArgs e)
+    private async void OnDrop(object sender, DragEventArgs e)
     {
         // ドロップされたデータがファイルではない場合は何もしない
-        if(false == e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+        if (false == e.Data.GetDataPresent(DataFormats.FileDrop)) return;
 
         // DroppedFilesがBindingされていないときは（nullのとき）は何もしない
-        if(DroppedFiles is null) return;
+        if (DroppedFiles is null) return;
 
         // ファイルパスの配列を受け取る
         var files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
+        // 一時保存用リスト
+        var items = new List<ItemInfo>();
+
         // ファイルパスからItemInfoオブジェクトを生成
-        foreach(var file in files)
+        // サムネイル作成等でフリーズするため、非同期で実行する
+        await Task.Run(() => files.AsParallel()
+            // 時間短縮のため、並列に実行する
+            .ForAll(file =>
+            {
+                try
+                {
+                    var item = new ItemInfo(file);
+                    lock (ParallelLock)
+                    {
+                        items.Add(item);
+                    }
+                }
+                // 拡張子非対応
+                catch (ArgumentOutOfRangeException exception)
+                {
+                    System.Diagnostics.Debug.WriteLine($"{exception.Message}:{exception.ParamName}");
+                }
+                catch (Exception exception)
+                {
+                    System.Diagnostics.Debug.WriteLine($"{exception}");
+                }
+            }));
+
+        // 非同期スレッドでDroppedFilesにアクセスできないため、itemsを介して反映する
+        foreach (var item in items)
         {
-            try
-            {
-                DroppedFiles.Add(new ItemInfo(file));
-            }
-            // 拡張子非対応
-            catch(ArgumentOutOfRangeException exception)
-            {
-                System.Diagnostics.Debug.WriteLine($"{exception.Message}:{exception.ParamName}");
-            }
-            catch(Exception exception)
-            {
-                System.Diagnostics.Debug.WriteLine($"{exception}");
-            }
+            DroppedFiles.Add(item);
         }
     }
 }

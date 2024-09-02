@@ -8,6 +8,13 @@ namespace MovieEditor2.main.Library;
 
 internal class FFmpegCommandConverter
 {
+    /// <summary>
+    /// 動画圧縮用コマンド生成処理
+    /// </summary>
+    /// <param name="itemInfo"></param>
+    /// <param name="setting"></param>
+    /// <param name="outputDirectory"></param>
+    /// <returns></returns>
     public static string ToCompressCommand(ItemInfo itemInfo, CommonSettingBoardViewModel setting, string outputDirectory)
     {
         var argList = new List<string>
@@ -55,8 +62,73 @@ internal class FFmpegCommandConverter
             argList.Add($"-to {itemInfo.Trimming.EndPoint:hh\\:mm\\:ss\\.fff}");
         }
 
+        // 速度倍率
+        if(itemInfo.Speed is not null && itemInfo.Speed > 0)
+        {
+            argList.Add($"-vf setpts=PTS/{itemInfo.Speed} -af atempo={itemInfo.Speed}");
+        }
+
         // 出力先指定
         var output = Path.Combine(outputDirectory, itemInfo.FileName);
+
+        // 重複しないファイルパスに書き換える
+        MovieFileProcessor.ToNonDuplicatePath(ref output);
+
+        argList.Add($"\"{output}\"");
+
+        return string.Join(" ", argList);
+    }
+
+    /// <summary>
+    /// 画像出力用コマンド生成処理
+    /// </summary>
+    /// <param name="itemInfo"></param>
+    /// <param name="setting"></param>
+    /// <param name="outputDirectory"></param>
+    /// <returns></returns>
+    public static string ToImagesCommand(ItemInfo itemInfo, CommonSettingBoardViewModel setting, string outputDirectory)
+    {
+        var argList = new List<string>
+        {
+            // 入力ファイルパス
+            $"-y -i \"{itemInfo.FilePath}\""
+        };
+
+        // 1秒間のフレーム数
+        if(setting.FramePerSecond >= 1)
+        {
+            argList.Add($"-r {setting.FramePerSecond}");
+        }
+
+        // 総フレーム数
+        if(setting.FrameSum >= 1)
+        {
+            argList.Add($"-vframes {setting.FrameSum}");
+        }
+
+        // 画像品質（数が大きいほど品質が低下し、容量が少なくなる）
+        if(setting.Quality >= 0)
+        {
+            argList.Add($"-q:v {setting.Quality}");
+        }
+
+        // トリミング開始位置
+        if(itemInfo.Trimming.StartPoint is not null)
+        {
+            argList.Add($"-ss {itemInfo.Trimming.StartPoint:hh\\:mm\\:ss\\.fff}");
+        }
+
+        // トリミング終了位置
+        if(itemInfo.Trimming.EndPoint is not null)
+        {
+            argList.Add($"-to {itemInfo.Trimming.EndPoint:hh\\:mm\\:ss\\.fff}");
+        }
+
+        // 画像出力フォルダの作成
+        Directory.CreateDirectory(Path.Combine(outputDirectory, itemInfo.FileName));
+
+        // 出力先指定
+        var output = Path.Combine(outputDirectory, itemInfo.FileName, $"{Path.GetFileNameWithoutExtension(itemInfo.FileName)}_%06d.{setting.ImageFormat}");
 
         // 重複しないファイルパスに書き換える
         MovieFileProcessor.ToNonDuplicatePath(ref output);

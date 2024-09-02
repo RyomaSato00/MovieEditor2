@@ -23,14 +23,14 @@ public partial class ItemInfo : ObservableObject
     /// <summary> 動画ファイル名 </summary>
     public string FileName { get; }
 
-    /// <summary> サムネイル用画像ファイルのパス </summary>
-    public string ThumbnailPath { get; }
-
     /// <summary> 元動画情報 </summary>
     public MovieInfo OriginalInfo { get; }
 
     /// <summary> 動画トリミング情報 </summary>
     public TrimmingInfo Trimming { get; }
+
+    // 速度倍率
+    [ObservableProperty] private double? _speed = null;
 
     public ItemInfo(string filePath)
     {
@@ -38,8 +38,6 @@ public partial class ItemInfo : ObservableObject
         FileName = Path.GetFileName(filePath);
 
         OriginalInfo = MovieInfo.ToMovieInfo(filePath);
-
-        ThumbnailPath = MovieFileProcessor.GetThumbnailPath(filePath, TimeSpan.Zero);
 
         Trimming = new TrimmingInfo(OriginalInfo.Duration, OriginalInfo.FrameRate, filePath);
     }

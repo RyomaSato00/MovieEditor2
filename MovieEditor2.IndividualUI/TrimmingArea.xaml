@@ -21,6 +21,8 @@
             <Setter Property="FontFamily" Value="Consolas" />
             <Setter Property="Margin" Value="0,8,0,0" />
         </Style>
+
+        <local:TimeSpanToStringConverter x:Key="TimeSpan2StringConverter" />
     </UserControl.Resources>
 
     <Grid>
@@ -46,7 +48,7 @@
                 Style="{StaticResource MaterialDesignIconForegroundButton}" >
                 <materialDesign:PackIcon Kind="MovieOpenCheck" Width="18" Height="18" />
             </Button>
-            <TextBox Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="開始時刻" Text="{Binding Item.Trimming.StartPoint, StringFormat={}{0:mm\\:ss\\.fff}}" />
+            <TextBox Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="開始時刻" Text="{Binding Item.Trimming.StartPoint, Converter={StaticResource TimeSpan2StringConverter}}" />
         </StackPanel>
 
         <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
@@ -55,7 +57,7 @@
                 Style="{StaticResource MaterialDesignIconForegroundButton}" >
                 <materialDesign:PackIcon Kind="MovieOpenCheck" Width="18" Height="18" />
             </Button>
-            <TextBox Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="終了時刻" Text="{Binding Item.Trimming.EndPoint, StringFormat={}{0:mm\\:ss\\.fff}}" />
+            <TextBox Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="終了時刻" Text="{Binding Item.Trimming.EndPoint, Converter={StaticResource TimeSpan2StringConverter}}" />
         </StackPanel>
 
         <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,16,0,0"

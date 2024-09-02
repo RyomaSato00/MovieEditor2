@@ -81,7 +81,7 @@
             </Grid.ColumnDefinitions>
 
             <!--再生・停止ボタン-->
-            <ToggleButton Grid.Column="0" Name="PlayToggle" Checked="Toggle_Checked" Unchecked="Toggle_Unchecked">
+            <ToggleButton Grid.Column="0" Name="PlayToggle" Checked="Toggle_Checked" Unchecked="Toggle_Unchecked" IsChecked="{Binding IsPlaying}">
                 <!--IsChecked=FalseのときはPlayアイコン、IsChecked=TrueのときはPauseアイコンを表示する-->
                 <ToggleButton.Style>
                     <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignFlatToggleButton}">

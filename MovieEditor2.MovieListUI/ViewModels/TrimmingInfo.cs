@@ -24,6 +24,9 @@ public partial class TrimmingInfo : ObservableObject
     /// <summary> 元動画の動画長さ </summary>
     private readonly TimeSpan _originalDuration;
 
+    /// <summary> ファイルパス </summary>
+    private readonly string _filePath;
+
     /// <summary>
     ///
     /// </summary>
@@ -32,6 +35,7 @@ public partial class TrimmingInfo : ObservableObject
     {
         _originalDuration = originalDuration;
         Duration = originalDuration;
+        _filePath = filePath;
 
         // 開始位置のサムネイル取得
         TrimStartImage = MovieFileProcessor.GetThumbnailPath(filePath, TimeSpan.Zero);
@@ -58,6 +62,9 @@ public partial class TrimmingInfo : ObservableObject
 
         // 動画長さを取得
         Duration = endPoint - startPoint;
+
+        // 開始位置のサムネイル取得
+        TrimStartImage = MovieFileProcessor.GetThumbnailPath(_filePath, startPoint);
     }
 
     /// <summary>
@@ -75,5 +82,8 @@ public partial class TrimmingInfo : ObservableObject
 
         // 動画長さを取得
         Duration = endPoint - startPoint;
+
+        // 終了位置のサムネイル取得
+        TrimEndImage = MovieFileProcessor.GetThumbnailPath(_filePath, endPoint);
     }
 }

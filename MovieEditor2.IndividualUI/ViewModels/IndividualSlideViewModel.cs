@@ -25,6 +25,9 @@ public partial class IndividualSlideViewModel : ObservableObject
     // ターゲット動画ファイルのインデックス
     [ObservableProperty] private int? _itemIndex = null;
 
+    // 動画再生中？
+    [ObservableProperty] private bool _isPlaying = false;
+
     /// <summary>
     /// indexによりItemを選択する
     /// </summary>
@@ -44,9 +47,6 @@ public partial class IndividualSlideViewModel : ObservableObject
         if(Item is null) return;
 
         Item.Trimming.StartPoint = point;
-
-        // 開始位置のサムネイル取得
-        Item.Trimming.TrimStartImage = MovieFileProcessor.GetThumbnailPath(Item.FilePath, point);
     }
 
     /// <summary>
@@ -58,9 +58,6 @@ public partial class IndividualSlideViewModel : ObservableObject
         if(Item is null) return;
 
         Item.Trimming.EndPoint = point;
-
-        //　終了位置のサムネイル取得
-        Item.Trimming.TrimEndImage = MovieFileProcessor.GetThumbnailPath(Item.FilePath, point);
     }
 
     /// <summary>
@@ -89,5 +86,13 @@ public partial class IndividualSlideViewModel : ObservableObject
             ItemIndex++;
             Item = ItemsSource[ItemIndex.Value];
         }
+    }
+
+    /// <summary>
+    /// 動画の再生・停止を切り替える
+    /// </summary>
+    public void TogglePlay()
+    {
+        IsPlaying = !IsPlaying;
     }
 }
