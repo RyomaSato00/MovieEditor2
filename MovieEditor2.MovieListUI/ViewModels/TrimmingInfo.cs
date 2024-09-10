@@ -1,3 +1,5 @@
+using System.IO;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
 using MovieEditor2.Models;
@@ -16,10 +18,10 @@ public partial class TrimmingInfo : ObservableObject
     [ObservableProperty] private TimeSpan _duration;
 
     /// <summary> トリミング開始位置のサムネイル </summary>
-    [ObservableProperty] private string _trimStartImage;
+    [ObservableProperty] private string _trimStartImage = string.Empty;
 
     /// <summary> トリミング終了位置のサムネイル </summary>
-    [ObservableProperty] private string _trimEndImage;
+    [ObservableProperty] private string _trimEndImage = string.Empty;
 
     /// <summary> 元動画の動画長さ </summary>
     private readonly TimeSpan _originalDuration;
@@ -36,15 +38,41 @@ public partial class TrimmingInfo : ObservableObject
         _originalDuration = originalDuration;
         Duration = originalDuration;
         _filePath = filePath;
+        var name = Path.GetFileNameWithoutExtension(filePath);
 
         // 開始位置のサムネイル取得
-        TrimStartImage = MovieFileProcessor.GetThumbnailPath(filePath, TimeSpan.Zero);
+        UpdateStartImage(filePath, name, TimeSpan.Zero);
+
 
         // 終了位置の時刻（動画長さ - 1フレーム）を取得
         var endPosition = originalDuration.TotalSeconds - 1 / frameRate;
 
         // 終了位置のサムネイル取得
-        TrimEndImage = MovieFileProcessor.GetThumbnailPath(filePath, TimeSpan.FromSeconds(endPosition));
+        UpdateEndImage(filePath, name, TimeSpan.FromSeconds(endPosition));
+    }
+
+    /// <summary>
+    /// トリミング開始位置のサムネイルを更新する
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <param name="fileName"></param>
+    /// <param name="point"></param>
+    public void UpdateStartImage(string filePath, string fileName, TimeSpan point)
+    {
+        var name = $"{fileName}_{point:hhmmssfff}";
+        TrimStartImage = MovieFileProcessor.GetThumbnailPath(filePath, name, point);
+    }
+
+    /// <summary>
+    /// トリミング終了位置のサムネイルを更新する
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <param name="fileName"></param>
+    /// <param name="point"></param>
+    public void UpdateEndImage(string filePath, string fileName, TimeSpan point)
+    {
+        var name =$"{fileName}_{point:hhmmssfff}";
+        TrimEndImage = MovieFileProcessor.GetThumbnailPath(filePath, name, point);
     }
 
     /// <summary>
@@ -62,9 +90,6 @@ public partial class TrimmingInfo : ObservableObject
 
         // 動画長さを取得
         Duration = endPoint - startPoint;
-
-        // 開始位置のサムネイル取得
-        TrimStartImage = MovieFileProcessor.GetThumbnailPath(_filePath, startPoint);
     }
 
     /// <summary>
@@ -82,8 +107,5 @@ public partial class TrimmingInfo : ObservableObject
 
         // 動画長さを取得
         Duration = endPoint - startPoint;
-
-        // 終了位置のサムネイル取得
-        TrimEndImage = MovieFileProcessor.GetThumbnailPath(_filePath, endPoint);
     }
 }

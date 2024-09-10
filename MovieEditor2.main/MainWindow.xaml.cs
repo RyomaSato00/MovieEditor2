@@ -32,17 +32,19 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         // キャッシュ削除
-        MovieFileProcessor.DeleteThumbnailCaches();
+        MovieFileProcessor.DeleteCaches();
 
         // 設定ファイルロード
         JsonHandler.LoadSettingFromJson(ref _userSetting, JsonFilePath);
+
+        // クローズ処理を設定
+        Closing += MainWindow_Closing;
 
         _mainWindowViewModel = new MainWindowViewModel(_userSetting);
 
         DataContext = _mainWindowViewModel;
 
-        // クローズ処理を設定
-        Closing += MainWindow_Closing;
+        _mainWindowViewModel.OnIndividualFocusRequested += () => MyIndividualSlide.Focus();
 
         InitializeComponent();
     }

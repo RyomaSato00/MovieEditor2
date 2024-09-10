@@ -1,0 +1,148 @@
+<UserControl x:Class="MovieEditor2.MovieListUI.JoinFilesDataGrid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MovieEditor2.MovieListUI"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:xamlBehaviorsWpf="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:converter="clr-namespace:MovieEditor2.MovieListUI.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Name="Root">
+    <UserControl.Resources>
+        <converter:TrimmingPointConverter x:Key="TrimmingPointConverter" />
+        <converter:ByteToMByteConverter x:Key="ByteToMByteConverter" />
+        <converter:IndexToVisibilityConverter x:Key="Index2VisibilityConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <!--DataGridのItemからViewModelへアクセスするためのProxy-->
+        <FrameworkElement Name="DataContextProxy" DataContext="{Binding}" />
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="40" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />      <!--DataGrid-->
+                    <ColumnDefinition Width="Auto" />   <!--上下ボタン-->
+                </Grid.ColumnDefinitions>
+
+                <DataGrid Grid.Column="0" Name="JoinFiles" ItemsSource="{Binding ItemsSource}" SelectedIndex="{Binding SelectedIndex}"
+                    SelectionMode="Single" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All">
+                    <DataGrid.ItemContainerStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}" >
+                            <!--コンテキストメニュー-->
+                            <Setter Property="ContextMenu" >
+                                <Setter.Value>
+                                    <ContextMenu>
+                                        <MenuItem Header="削除" Icon="{materialDesign:PackIcon Kind=Delete}" Command="{Binding DataContext.DeleteItemCommand, Source={x:Reference DataContextProxy}}" CommandParameter="{Binding}" />
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.ItemContainerStyle>
+
+                    <DataGrid.Columns>
+                        <!--サムネイル-->
+                        <DataGridTemplateColumn Header="サムネイル">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <!--サムネイルはトリミング開始位置と同期させる-->
+                                    <Image Source="{Binding Trimming.TrimStartImage}" Height="72" Width="128" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!--情報テキスト-->
+                        <DataGridTemplateColumn Header="情報">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="24" />
+                                            <RowDefinition Height="24" />
+                                            <RowDefinition Height="24" />
+                                        </Grid.RowDefinitions>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="350" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                    
+                                        <!--ファイル名-->
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding FileName}" FontFamily="Consolas" />
+
+                                        <!--動画時間情報-->
+                                        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Trimming.Duration, StringFormat={}{0:mm\\:ss\\.fff}}" FontFamily="Consolas" />
+                                            <TextBlock Text="{Binding Trimming.StartPoint, Converter={StaticResource TrimmingPointConverter}, ConverterParameter=Start, StringFormat=({0}}" FontFamily="Consolas" Margin="4,0,0,0" />
+                                            <TextBlock Text="{Binding Trimming.EndPoint, Converter={StaticResource TrimmingPointConverter}, ConverterParameter=End, StringFormat=-{0})}" FontFamily="Consolas" />
+                                        </StackPanel>
+
+                                        <!--動画サイズ情報-->
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+                                            <TextBlock Text="{Binding OriginalInfo.Width}" FontFamily="Consolas" />
+                                            <TextBlock Text="{Binding OriginalInfo.Height, StringFormat=:{0}}" FontFamily="Consolas" />
+                                            <TextBlock Text="(W:H)" FontFamily="Consolas" Margin="4,0,0,0" />
+                                        </StackPanel>
+
+                                        <!--動画ファイルサイズ情報-->
+                                        <TextBlock Grid.Row="0" Grid.Column="1" FontFamily="Consolas"
+                                            Text="{Binding OriginalInfo.FileSize, Converter={StaticResource ByteToMByteConverter}, StringFormat={}{0:F3} MB}" />
+
+                                        <!--動画フレームレート情報-->
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OriginalInfo.FrameRate, StringFormat={}{0:F2} fps}" FontFamily="Consolas" />
+
+                                        <!--動画コーデック情報-->
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OriginalInfo.VideoCodec}" FontFamily="Consolas" />
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <!--前へボタン-->
+                    <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding MoveBeforeCommand}" >
+                        <materialDesign:PackIcon Kind="Triangle" Width="18" Height="18"/>
+                        <!--これ以上前に戻れないときはボタンを非表示-->
+                        <Button.Visibility>
+                            <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="previous">
+                                <Binding Path="SelectedIndex" />
+                                <Binding Path="ItemsSource.Count" />
+                            </MultiBinding>
+                        </Button.Visibility>
+                    </Button>
+
+                    <!--次へボタン-->
+                    <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding MoveAfterCommand}" Margin="0,4,0,0" >
+                        <materialDesign:PackIcon Kind="TriangleDown" Width="18" Height="18" />
+                        <!--これ以上次に進めないときはボタンを非表示-->
+                        <Button.Visibility>
+                            <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="next">
+                                <Binding Path="SelectedIndex" />
+                                <Binding Path="ItemsSource.Count" />
+                            </MultiBinding>
+                        </Button.Visibility>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button  Content="決定" Width="90" Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                    CommandParameter="{Binding ItemsSource}" >
+                </Button>
+
+                <Button Content="キャンセル" Width="90" Margin="8,0,0,0" Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}" 
+                    CommandParameter="{x:Null}">
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

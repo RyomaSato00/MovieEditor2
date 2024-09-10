@@ -53,7 +53,7 @@
             
                 <!--個別編集-->
                 <materialDesign:TransitionerSlide OpeningEffect="{materialDesign:TransitionEffect SlideInFromRight}">
-                    <individualUI:IndividualSlide DataContext="{Binding IndividualSlideUI}" />
+                    <individualUI:IndividualSlide Name="MyIndividualSlide" DataContext="{Binding IndividualSlideUI}" />
                 </materialDesign:TransitionerSlide>
             </materialDesign:Transitioner>
 
@@ -86,9 +86,4 @@
             </Grid>
         </Grid>
     </Grid>
-
-    <Window.InputBindings>
-        <!--スペースキーを押したら動画の再生・停止（個別編集画面時）-->
-        <KeyBinding Key="Space" Command="{Binding TogglePlayCommand}" />
-    </Window.InputBindings>
 </Window>

@@ -244,5 +244,15 @@ public partial class MovieArea : UserControl
             // System.Diagnostics.Debug.WriteLine($"new value:{e.NewValue}, {Math.Round(e.NewValue)}");
         }
     }
+
+    /// <summary>
+    /// リロードボタンクリック時処理
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Reload_Click(object sender, RoutedEventArgs e)
+    {
+        LoadMovie();
+    }
 }
 

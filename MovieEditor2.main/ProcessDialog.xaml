@@ -25,6 +25,6 @@
         <ProgressBar Grid.Row="1" Margin="0,8,0,0" Value="{Binding ProgressCount}" Maximum="{Binding ProcessCount}" Width="300" />
 
         <Button Grid.Row="2" Content="キャンセル" Height="40" Width="100" Margin="0,8,0,0"
-            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}" CommandParameter="True" />
+            Command="{Binding CancelCommand}" />
     </Grid>
 </UserControl>

@@ -20,6 +20,8 @@
     </UserControl.Resources>
 
     <Grid>
+        <materialDesign:DialogHost Identifier="MovieFilesDataGridDialog" />
+
         <!--ドロップエリア用キャンバス-->
         <Canvas Background="Transparent" />
 
@@ -30,15 +32,22 @@
         <FrameworkElement Name="DataContextProxy" DataContext="{Binding}" />
 
         <DataGrid ItemsSource="{Binding ItemsSource}" Visibility="{Binding IsDataGridVisible, Converter={StaticResource Bool2VisibilityConverter}}"
-            AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All">
+            SelectionMode="Extended" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All">
+            <xamlBehaviorsWpf:Interaction.Triggers>
+                <xamlBehaviorsWpf:EventTrigger EventName="SelectionChanged" >
+                    <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding SelectionChangedCommand}" CommandParameter="{Binding SelectedItems, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+                </xamlBehaviorsWpf:EventTrigger>
+            </xamlBehaviorsWpf:Interaction.Triggers>
+
             <DataGrid.ItemContainerStyle>
                 <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}" >
                     <!--コンテキストメニュー-->
                     <Setter Property="ContextMenu" >
                         <Setter.Value>
                             <ContextMenu>
-                                <MenuItem Header="削除" Icon="{materialDesign:PackIcon Kind=Delete}" Command="{Binding DataContext.DeleteItemCommand, Source={x:Reference DataContextProxy}}" CommandParameter="{Binding}" />
+                                <MenuItem Header="削除" Icon="{materialDesign:PackIcon Kind=Delete}" Command="{Binding DataContext.DeleteItemCommand, Source={x:Reference DataContextProxy}}" />
                                 <MenuItem Header="複製" Icon="{materialDesign:PackIcon Kind=FileDocumentMultiple}" Command="{Binding DataContext.CloneItemCommand, Source={x:Reference DataContextProxy}}" CommandParameter="{Binding}" />
+                                <MenuItem Header="動画の結合" Icon="{materialDesign:PackIcon Kind=Filmstrip}" Command="{Binding DataContext.JoinItemsCommand, Source={x:Reference DataContextProxy}}" />
                             </ContextMenu>
                         </Setter.Value>
                     </Setter>
@@ -70,7 +79,7 @@
                             <Image Source="{Binding Trimming.TrimStartImage}" Height="72" Width="128" >
                                 <!--MouseDownイベント時にEditIndividualCommandを実行する-->
                                 <xamlBehaviorsWpf:Interaction.Triggers>
-                                    <xamlBehaviorsWpf:EventTrigger EventName="MouseDown">
+                                    <xamlBehaviorsWpf:EventTrigger EventName="MouseLeftButtonDown">
                                         <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding DataContext.EditIndividualCommand, Source={x:Reference DataContextProxy}}"
                                             CommandParameter="{Binding}" />
                                     </xamlBehaviorsWpf:EventTrigger>

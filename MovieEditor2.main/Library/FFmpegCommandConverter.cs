@@ -14,8 +14,9 @@ internal class FFmpegCommandConverter
     /// <param name="itemInfo"></param>
     /// <param name="setting"></param>
     /// <param name="outputDirectory"></param>
+    /// <param name="isOnly">出力ファイルの重複を回避する？</param>
     /// <returns></returns>
-    public static string ToCompressCommand(ItemInfo itemInfo, CommonSettingBoardViewModel setting, string outputDirectory)
+    public static string ToCompressCommand(ItemInfo itemInfo, CommonSettingBoardViewModel setting, string outputDirectory, bool isOnly = true)
     {
         var argList = new List<string>
         {
@@ -69,14 +70,30 @@ internal class FFmpegCommandConverter
         }
 
         // 出力先指定
-        var output = Path.Combine(outputDirectory, itemInfo.FileName);
+        var output = Path.Combine(outputDirectory, $"{itemInfo.FileNameWithoutExtension}C{itemInfo.CloneCount}{setting.Extension}");
 
-        // 重複しないファイルパスに書き換える
-        MovieFileProcessor.ToNonDuplicatePath(ref output);
+        if(isOnly)
+        {
+            // 重複しないファイルパスに書き換える
+            MovieFileProcessor.ToNonDuplicatePath(ref output);
+        }
 
         argList.Add($"\"{output}\"");
 
         return string.Join(" ", argList);
+    }
+
+    /// <summary>
+    /// 動画圧縮用コマンド生成処理
+    /// </summary>
+    /// <param name="itemInfo"></param>
+    /// <param name="setting"></param>
+    /// <param name="outputDirectory"></param>
+    /// <param name="isOnly">出力ファイルの重複を回避する？</param>
+    /// <returns></returns>
+    public static string ToCompressCommand(ItemInfo itemInfo, CommonSettingBoardViewModel setting, string outputDirectory)
+    {
+        return ToCompressCommand(itemInfo, setting, outputDirectory, true);
     }
 
     /// <summary>
@@ -125,10 +142,10 @@ internal class FFmpegCommandConverter
         }
 
         // 画像出力フォルダの作成
-        Directory.CreateDirectory(Path.Combine(outputDirectory, itemInfo.FileName));
+        Directory.CreateDirectory(Path.Combine(outputDirectory, itemInfo.FileNameWithoutExtension));
 
         // 出力先指定
-        var output = Path.Combine(outputDirectory, itemInfo.FileName, $"{Path.GetFileNameWithoutExtension(itemInfo.FileName)}_%06d.{setting.ImageFormat}");
+        var output = Path.Combine(outputDirectory, itemInfo.FileNameWithoutExtension, $"{itemInfo.FileNameWithoutExtension}C{itemInfo.CloneCount}_%06d.{setting.ImageFormat}");
 
         // 重複しないファイルパスに書き換える
         MovieFileProcessor.ToNonDuplicatePath(ref output);

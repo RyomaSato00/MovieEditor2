@@ -47,6 +47,9 @@ public partial class IndividualSlideViewModel : ObservableObject
         if(Item is null) return;
 
         Item.Trimming.StartPoint = point;
+
+        // 開始位置のサムネイル取得
+        Item.Trimming.UpdateStartImage(Item.FilePath, Item.FileNameWithoutExtension, point);
     }
 
     /// <summary>
@@ -58,6 +61,9 @@ public partial class IndividualSlideViewModel : ObservableObject
         if(Item is null) return;
 
         Item.Trimming.EndPoint = point;
+
+        // 終了位置のサムネイル取得
+        Item.Trimming.UpdateEndImage(Item.FilePath, Item.FileNameWithoutExtension, point);
     }
 
     /// <summary>
@@ -91,7 +97,7 @@ public partial class IndividualSlideViewModel : ObservableObject
     /// <summary>
     /// 動画の再生・停止を切り替える
     /// </summary>
-    public void TogglePlay()
+    [RelayCommand] private void TogglePlay()
     {
         IsPlaying = !IsPlaying;
     }

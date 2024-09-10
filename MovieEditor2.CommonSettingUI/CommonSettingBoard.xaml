@@ -35,105 +35,116 @@
         <TabControl materialDesign:ColorZoneAssist.Mode="PrimaryLight" >
             <TabItem Header="動画圧縮" >
                 <Border BorderBrush="Gray" BorderThickness="1" Margin="0,8,0,8">
-                    <Grid Margin="8">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                        </Grid.RowDefinitions>
+                    <ScrollViewer>
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40" />
+                            </Grid.RowDefinitions>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150" />
-                            <ColumnDefinition Width="100" />
-                        </Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="100" />
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Width" Style="{StaticResource TextStyle}" />
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Height" Style="{StaticResource TextStyle}" />
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Frame Rate" Style="{StaticResource TextStyle}" />
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Codec" Style="{StaticResource TextStyle}" />
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Audio Disable" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Width" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Height" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Frame Rate" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Codec" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Extension" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Audio Disable" Style="{StaticResource TextStyle}" />
 
-                        <ComboBox Grid.Row="0" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
-                            Text="{Binding Width}" >
-                            <ComboBoxItem Content="-1" />
-                            <ComboBoxItem Content="1920" />
-                            <ComboBoxItem Content="1600" />
-                            <ComboBoxItem Content="1280" />
-                            <ComboBoxItem Content="1024" />
-                            <ComboBoxItem Content="768" />
-                            <ComboBoxItem Content="640" />
-                            <ComboBoxItem Content="480" />
-                        </ComboBox>
+                            <ComboBox Grid.Row="0" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
+                                Text="{Binding Width}" >
+                                <ComboBoxItem Content="-1" />
+                                <ComboBoxItem Content="1920" />
+                                <ComboBoxItem Content="1600" />
+                                <ComboBoxItem Content="1280" />
+                                <ComboBoxItem Content="1024" />
+                                <ComboBoxItem Content="768" />
+                                <ComboBoxItem Content="640" />
+                                <ComboBoxItem Content="480" />
+                            </ComboBox>
 
-                        <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
-                            Text="{Binding Height}" >
-                            <ComboBoxItem Content="-1" />
-                            <ComboBoxItem Content="1080" />
-                            <ComboBoxItem Content="900" />
-                            <ComboBoxItem Content="720" />
-                            <ComboBoxItem Content="576" />
-                            <ComboBoxItem Content="432" />
-                            <ComboBoxItem Content="360" />
-                            <ComboBoxItem Content="270" />
-                        </ComboBox>
+                            <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
+                                Text="{Binding Height}" >
+                                <ComboBoxItem Content="-1" />
+                                <ComboBoxItem Content="1080" />
+                                <ComboBoxItem Content="900" />
+                                <ComboBoxItem Content="720" />
+                                <ComboBoxItem Content="576" />
+                                <ComboBoxItem Content="432" />
+                                <ComboBoxItem Content="360" />
+                                <ComboBoxItem Content="270" />
+                            </ComboBox>
 
-                        <ComboBox Grid.Row="2" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
-                            Text="{Binding FrameRate}" >
-                            <ComboBoxItem Content="-1" />
-                            <ComboBoxItem Content="30.0" />
-                            <ComboBoxItem Content="60.0" />
-                        </ComboBox>
+                            <ComboBox Grid.Row="2" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
+                                Text="{Binding FrameRate}" >
+                                <ComboBoxItem Content="-1" />
+                                <ComboBoxItem Content="30.0" />
+                                <ComboBoxItem Content="60.0" />
+                            </ComboBox>
 
-                        <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
-                            Text="{Binding Codec}" >
-                            <ComboBoxItem Content="h264" />
-                            <ComboBoxItem Content="hevc" />
-                        </ComboBox>
+                            <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
+                                Text="{Binding Codec}" >
+                                <ComboBoxItem Content="h264" />
+                                <ComboBoxItem Content="hevc" />
+                            </ComboBox>
 
-                        <CheckBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" IsChecked="{Binding AudioDisable}" />
-                    </Grid>
+                            <ComboBox Grid.Row="4" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
+                                Text="{Binding Extension}" >
+                                <ComboBoxItem Content=".mp4" />
+                            </ComboBox>
+
+                            <CheckBox Grid.Row="5" Grid.Column="1" HorizontalAlignment="Center" IsChecked="{Binding AudioDisable}" />
+                        </Grid>
+                    </ScrollViewer>
                 </Border>
             </TabItem>
 
             <TabItem Header="画像出力">
                 <Border BorderBrush="Gray" BorderThickness="1" Margin="0,8,0,8">
-                    <Grid Margin="8">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                            <RowDefinition Height="40" />
-                        </Grid.RowDefinitions>
+                    <ScrollViewer>
+                        <Grid Margin="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="40" />
+                            </Grid.RowDefinitions>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150" />
-                            <ColumnDefinition Width="100" />
-                        </Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="100" />
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Format" Style="{StaticResource TextStyle}" />
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Frame per Second" Style="{StaticResource TextStyle}" />
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Frame Sum" Style="{StaticResource TextStyle}" />
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Quality" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Format" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Frame per Second" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Frame Sum" Style="{StaticResource TextStyle}" />
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Quality" Style="{StaticResource TextStyle}" />
 
-                        <ComboBox Grid.Row="0" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
-                            Text="{Binding ImageFormat}" >
-                            <ComboBoxItem Content="png" />
-                            <ComboBoxItem Content="jpg" />
-                        </ComboBox>
+                            <ComboBox Grid.Row="0" Grid.Column="1" Style="{StaticResource ComboBoxStyle}"
+                                Text="{Binding ImageFormat}" >
+                                <ComboBoxItem Content="png" />
+                                <ComboBoxItem Content="jpg" />
+                            </ComboBox>
 
-                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding FramePerSecond}" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding FramePerSecond}" />
 
-                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding FrameSum}" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Text="{Binding FrameSum}" />
 
-                        <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource ComboBoxStyle}" Text="{Binding Quality}" >
-                            <ComboBoxItem Content="-1" />
-                            <ComboBoxItem Content="0" />
-                            <ComboBoxItem Content="1" />
-                            <ComboBoxItem Content="2" />
-                        </ComboBox>
-                    </Grid>
+                            <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource ComboBoxStyle}" Text="{Binding Quality}" >
+                                <ComboBoxItem Content="-1" />
+                                <ComboBoxItem Content="0" />
+                                <ComboBoxItem Content="1" />
+                                <ComboBoxItem Content="2" />
+                            </ComboBox>
+                        </Grid>
+                    </ScrollViewer>
                 </Border>
             </TabItem>
         </TabControl>

@@ -44,31 +44,43 @@
                 HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8"
                 MediaOpened="MoviePlayer_MediaOpened" />
 
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" >
-                <!--前へボタン-->
-                <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding PreviousMovieCommand}" >
-                    <materialDesign:PackIcon Kind="Triangle" Width="18" Height="18"/>
-                    <!--これ以上前に戻れないときはボタンを非表示-->
-                    <Button.Visibility>
-                        <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="previous">
-                            <Binding Path="ItemIndex" />
-                            <Binding Path="ItemsSource.Count" />
-                        </MultiBinding>
-                    </Button.Visibility>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!--リロードボタン-->
+                <Button Grid.Row="0" Style="{StaticResource MaterialDesignIconForegroundButton}" Click="Reload_Click" >
+                    <materialDesign:PackIcon Kind="Reload" Width="18" Height="18" />
                 </Button>
 
-                <!--次へボタン-->
-                <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding NextMovieCommand}" Margin="0,4,0,0" >
-                    <materialDesign:PackIcon Kind="TriangleDown" Width="18" Height="18" />
-                    <!--これ以上次に進めないときはボタンを非表示-->
-                    <Button.Visibility>
-                        <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="next">
-                            <Binding Path="ItemIndex" />
-                            <Binding Path="ItemsSource.Count" />
-                        </MultiBinding>
-                    </Button.Visibility>
-                </Button>
-            </StackPanel>
+                <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                    <!--前へボタン-->
+                    <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding PreviousMovieCommand}" >
+                        <materialDesign:PackIcon Kind="Triangle" Width="18" Height="18"/>
+                        <!--これ以上前に戻れないときはボタンを非表示-->
+                        <Button.Visibility>
+                            <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="previous">
+                                <Binding Path="ItemIndex" />
+                                <Binding Path="ItemsSource.Count" />
+                            </MultiBinding>
+                        </Button.Visibility>
+                    </Button>
+
+                    <!--次へボタン-->
+                    <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding NextMovieCommand}" Margin="0,4,0,0" >
+                        <materialDesign:PackIcon Kind="TriangleDown" Width="18" Height="18" />
+                        <!--これ以上次に進めないときはボタンを非表示-->
+                        <Button.Visibility>
+                            <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="next">
+                                <Binding Path="ItemIndex" />
+                                <Binding Path="ItemsSource.Count" />
+                            </MultiBinding>
+                        </Button.Visibility>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Grid>
 
         <!--スライダー-->

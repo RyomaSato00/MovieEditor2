@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:MovieEditor2.IndividualUI"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" Focusable="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />     <!--ファイル名-->
@@ -69,10 +69,19 @@
     </Grid>
 
     <UserControl.InputBindings>
+        <!--Dキーを押したら動画の再生・停止（個別編集画面時）-->
+        <KeyBinding Key="D" Command="{Binding TogglePlayCommand}" />
+        
         <!--Sを押したらトリミング開始位置指定-->
         <KeyBinding Key="S" Command="{Binding PinStartPointCommand}" CommandParameter="{Binding CurrentTime, ElementName=MyMovieArea}" />
 
         <!--Eを押したらトリミング終了位置指定-->
         <KeyBinding Key="E" Command="{Binding PinEndPointCommand}" CommandParameter="{Binding CurrentTime, ElementName=MyMovieArea}" />
+
+        <!--↑を押したら前の動画へ-->
+        <KeyBinding Key="Up" Command="{Binding PreviousMovieCommand}" />
+
+        <!--↓を押したら次の動画へ-->
+        <KeyBinding Key="Down" Command="{Binding NextMovieCommand}" />
     </UserControl.InputBindings>
 </UserControl>

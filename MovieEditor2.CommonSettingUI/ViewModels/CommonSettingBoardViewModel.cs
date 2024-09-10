@@ -14,6 +14,8 @@ public partial class CommonSettingBoardViewModel : ObservableObject
 
     [ObservableProperty] private string _codec = "hevc";
 
+    [ObservableProperty] private string _extension = ".mp4";
+
     [ObservableProperty] private bool _audioDisable = true;
 
 

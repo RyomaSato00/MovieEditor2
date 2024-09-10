@@ -28,15 +28,12 @@ internal class ParallelCommandProcessor : IDisposable
     /// <param name="commandConverter">コマンドコンバータ</param>
     public void RunParallelly(ItemInfo[] sources, Func<ItemInfo, string> commandConverter)
     {
-        try
+        sources
+        .AsParallel()
+        .ForAll(item =>
         {
-            sources
-            .AsParallel()
-            .ForAll(item =>
+            try
             {
-                // キャンセルされたらここで終了
-                _cancelable.Token.ThrowIfCancellationRequested();
-
                 var info = new ProcessStartInfo("ffmpeg")
                 {
                     // FFmpegのコマンドを取得する
@@ -59,6 +56,9 @@ internal class ParallelCommandProcessor : IDisposable
                 process.Start();
                 process.WaitForExit();
 
+                // キャンセルされたらここで終了
+                _cancelable.Token.ThrowIfCancellationRequested();
+
                 // リストはスレッドセーフではないためロックをかける
                 lock (ParallelLock)
                 {
@@ -73,16 +73,16 @@ internal class ParallelCommandProcessor : IDisposable
                 }
 
                 System.Diagnostics.Debug.WriteLine($"arg:{info.Arguments}");
-            });
-        }
-        catch (OperationCanceledException)
-        {
-            System.Diagnostics.Debug.WriteLine($"キャンセルされました");
-        }
-        catch (Exception e)
-        {
-            System.Diagnostics.Debug.WriteLine($"{e}");
-        }
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine("キャンセルされました");
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine($"{e}");
+            }
+        });
 
         System.Diagnostics.Debug.WriteLine("処理終了");
 

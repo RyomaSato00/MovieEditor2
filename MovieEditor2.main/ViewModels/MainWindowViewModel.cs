@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -34,10 +35,11 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
 
         // サブViewModelの初期化
         MovieFilesUI = new MovieFilesDataGridViewModel(Items);
+        MovieFilesUI.OnJoinFilesRequested += items => _ = JoinFiles(items);
         IndividualSlideUI = new IndividualSlideViewModel(Items);
 
         // リストから個別編集に画面へ遷移するイベント定義
-        MovieFilesUI.OnEditIndividual += index =>
+        MovieFilesUI.OnEditIndividualRequested += index =>
         {
             IndividualSlideUI.SelectItem(index);
             IndividualSlide();
@@ -51,6 +53,8 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     public void Dispose()
     {
     }
+
+    public event Action? OnIndividualFocusRequested = null;
 
     /// <summary>
     /// 設定値の変更を設定値ファイルに反映する
@@ -82,6 +86,9 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     private void IndividualSlide()
     {
         SlideIndex = (int)Slides.Individual;
+
+        // 個別編集画面をフォーカスする（ショートカットキーを有効にするため）
+        OnIndividualFocusRequested?.Invoke();
     }
 
     /// <summary>
@@ -91,19 +98,6 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     private void HomeSlide()
     {
         SlideIndex = (int)Slides.Home;
-    }
-
-    /// <summary>
-    /// 個別編集画面時、動画の再生・停止を切り替える
-    /// </summary>
-    [RelayCommand]
-    private void TogglePlay()
-    {
-        // 個別編集画面？
-        if(SlideIndex == (int)Slides.Individual)
-        {
-            IndividualSlideUI.TogglePlay();
-        }
     }
 
     /// <summary>
@@ -150,6 +144,62 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
 
         // 並列処理が終了したらダイアログを閉じる
         DialogHost.Close(MainWindowDialogIdentifier);
+
+        // 「処理済みファイルをリストから削除しますか？」
+        var isDeleteRequested = await OpenDeleteCompletedDialog();
+
+        // 処理済みファイルをリストから削除する場合
+        if (isDeleteRequested)
+        {
+            foreach (var file in process.CompletedFiles)
+            {
+                Items.Remove(file);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 動画結合処理
+    /// </summary>
+    /// <param name="sources"></param>
+    /// <returns></returns>
+    private async Task JoinFiles(ItemInfo[] sources)
+    {
+        using var process = new ParallelCommandProcessor();
+
+        // 処理進捗ダイアログの表示
+        _ = OpenProgressDialog(process, sources.Length);
+
+        // 時間のトリミングだけしたいため、共通設定は影響が低いようにする
+        var defaultSetting = new CommonSettingBoardViewModel { Codec = "h264", AudioDisable = false };
+
+        // 時間のトリミング後のファイルを置いておくディレクトリが未作成のときはディレクトリを作成する
+        if (false == Directory.Exists(MovieFileProcessor.JoinCacheDir))
+        {
+            Directory.CreateDirectory(MovieFileProcessor.JoinCacheDir);
+        }
+
+        // 並列処理実行（時間トリミング）
+        await Task.Run(
+            () => process.RunParallelly(
+                sources,
+                item => FFmpegCommandConverter.ToCompressCommand(item, defaultSetting, MovieFileProcessor.JoinCacheDir, false)
+            )
+        );
+
+        // 並列処理が終了したらダイアログを閉じる
+        DialogHost.Close(MainWindowDialogIdentifier);
+
+        // 動画結合の入力配列
+        string[] files = sources.Select(item => Path.Combine(MovieFileProcessor.JoinCacheDir, $"{item.FileNameWithoutExtension}C{item.CloneCount}.mp4")).ToArray();
+
+        // 動画結合の実行
+        var joined = MovieFileProcessor.JoinFiles(files);
+
+        // 結合後の動画をリストに追加
+        Items.Add(new ItemInfo(joined));
+
+        System.Diagnostics.Debug.WriteLine("join end");
 
         // 「処理済みファイルをリストから削除しますか？」
         var isDeleteRequested = await OpenDeleteCompletedDialog();
