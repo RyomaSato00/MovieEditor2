@@ -48,6 +48,23 @@
                     <TreeViewItem.Header>
                         <TextBlock Text="クリッピング" FontSize="18" FontWeight="Bold" />
                     </TreeViewItem.Header>
+                    <TreeViewItem>
+                        <TreeViewItem.Header>
+                            <StackPanel>
+                                <TextBlock FontFamily="Consolas">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0:F2}, {1:F2}, {2:F2}, {3:F2}" >
+                                            <Binding Path="MyClipping.ClipRect.X" ElementName="MyMovieArea" />
+                                            <Binding Path="MyClipping.ClipRect.Y" ElementName="MyMovieArea" />
+                                            <Binding Path="MyClipping.ClipRect.Width" ElementName="MyMovieArea" />
+                                            <Binding Path="MyClipping.ClipRect.Height" ElementName="MyMovieArea" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <Button Content="決定" Command="{Binding EnterClipCommand}" />
+                            </StackPanel>
+                        </TreeViewItem.Header>
+                    </TreeViewItem>
                 </TreeViewItem>
                 <TreeViewItem >
                     <TreeViewItem.Header>

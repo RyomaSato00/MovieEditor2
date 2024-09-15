@@ -1,4 +1,5 @@
 using System.IO;
+using System.Windows;
 
 using MovieEditor2.CommonSettingUI.ViewModels;
 using MovieEditor2.Models;
@@ -31,6 +32,12 @@ internal class FFmpegCommandConverter
         if(scaleArg is not null)
         {
             argList.Add($"-vf {scaleArg}");
+        }
+
+        // クリッピング指定
+        if(itemInfo.Clipping != Rect.Empty)
+        {
+            argList.Add($"-vf crop={itemInfo.Clipping.Width:F2}:{itemInfo.Clipping.Height:F2}:{itemInfo.Clipping.X:F2}:{itemInfo.Clipping.Y:F2}");
         }
 
         // フレームレート

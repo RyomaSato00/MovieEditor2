@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Windows;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -27,6 +28,9 @@ public partial class IndividualSlideViewModel : ObservableObject
 
     // 動画再生中？
     [ObservableProperty] private bool _isPlaying = false;
+
+    // クリッピング範囲
+    [ObservableProperty] private Rect _clipRect = Rect.Empty;
 
     /// <summary>
     /// indexによりItemを選択する
@@ -100,5 +104,17 @@ public partial class IndividualSlideViewModel : ObservableObject
     [RelayCommand] private void TogglePlay()
     {
         IsPlaying = !IsPlaying;
+    }
+
+    /// <summary>
+    /// クリッピング範囲決定処理
+    /// </summary>
+    [RelayCommand] private void EnterClip()
+    {
+        if(Item is null) return;
+
+        Item.Clipping = ClipRect;
+
+        System.Diagnostics.Debug.WriteLine($"{Item.Clipping.X}, {Item.Clipping.Y}, {Item.Clipping.Width}, {Item.Clipping.Height}");
     }
 }

@@ -71,6 +71,8 @@ public partial class MovieArea : UserControl
         set => SetValue(MaxTimeProperty, value);
     }
 
+    /// <summary> クリッピング用UserControlを取得 </summary>
+    public ClippingBoard MyClipping => MyClippingBoard;
 
     public MovieArea()
     {
@@ -87,6 +89,8 @@ public partial class MovieArea : UserControl
     {
         _movieStory.Begin();
         _movieStory.Pause();
+
+        MyClippingBoard.Load();
     }
 
     /// <summary>
