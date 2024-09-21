@@ -2,9 +2,13 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
+using MaterialDesignThemes.Wpf;
+
 using Microsoft.Xaml.Behaviors;
 
 using MovieEditor2.MovieListUI.ViewModels;
+
+using MyControls;
 
 namespace MovieEditor2.MovieListUI;
 
@@ -86,6 +90,9 @@ public class FileDropBehavior : Behavior<UserControl>
         // 一時保存用リスト
         var items = new List<ItemInfo>();
 
+        // サムネイル反映待機ダイアログの表示
+        _ = OpenWaitingMessageBox();
+
         // ファイルパスからItemInfoオブジェクトを生成
         // サムネイル作成等でフリーズするため、非同期で実行する
         await Task.Run(() => files.AsParallel()
@@ -116,5 +123,21 @@ public class FileDropBehavior : Behavior<UserControl>
         {
             DroppedFiles.Add(item);
         }
+
+        // ダイアログを閉じる
+        DialogHost.Close(MovieFilesDataGridViewModel.MovieFilesDataGridDialogIdentifier);
+    }
+
+    /// <summary>
+    /// 待機中ダイアログ表示処理
+    /// </summary>
+    /// <returns></returns>
+    private static async Task OpenWaitingMessageBox()
+    {
+        // ダイアログのViewを生成
+        var view = new WaitingMessageBox { Text = "メディアファイルをロード中…" };
+
+        // ダイアログ表示
+        await DialogHost.Show(view, MovieFilesDataGridViewModel.MovieFilesDataGridDialogIdentifier, null, null, null);
     }
 }

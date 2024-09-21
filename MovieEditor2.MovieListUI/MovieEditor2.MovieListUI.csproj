@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MovieEditor2.Models\MovieEditor2.Models.csproj" />
+    <ProjectReference Include="..\MyControls\MyControls.csproj" />
   </ItemGroup>
 
 </Project>

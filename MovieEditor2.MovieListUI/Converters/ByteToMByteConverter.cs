@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace MovieEditor2.MovieListUI.Converters;
+namespace MovieEditor2.MovieListUI;
 
 [ValueConversion(typeof(long), typeof(float))]
 internal class ByteToMByteConverter : IValueConverter

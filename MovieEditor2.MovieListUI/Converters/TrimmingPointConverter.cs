@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace MovieEditor2.MovieListUI.Converters;
+namespace MovieEditor2.MovieListUI;
 
 [ValueConversion(typeof(TimeSpan?), typeof(string))]
 internal class TrimmingPointConverter : IValueConverter

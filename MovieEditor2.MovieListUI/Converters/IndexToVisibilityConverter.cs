@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 using MovieEditor2.MovieListUI.ViewModels;
 
-namespace MovieEditor2.MovieListUI.Converters;
+namespace MovieEditor2.MovieListUI;
 
 /// <summary>
 /// ItemIndexから、移動ボタンの表示・非表示を取得するためのコンバータ

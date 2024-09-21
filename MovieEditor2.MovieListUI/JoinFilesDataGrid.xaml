@@ -7,13 +7,12 @@
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:xamlBehaviorsWpf="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:converter="clr-namespace:MovieEditor2.MovieListUI.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Name="Root">
     <UserControl.Resources>
-        <converter:TrimmingPointConverter x:Key="TrimmingPointConverter" />
-        <converter:ByteToMByteConverter x:Key="ByteToMByteConverter" />
-        <converter:IndexToVisibilityConverter x:Key="Index2VisibilityConverter" />
+        <local:TrimmingPointConverter x:Key="TrimmingPointConverter" />
+        <local:ByteToMByteConverter x:Key="ByteToMByteConverter" />
+        <local:IndexToVisibilityConverter x:Key="Index2VisibilityConverter" />
     </UserControl.Resources>
 
     <Grid>
