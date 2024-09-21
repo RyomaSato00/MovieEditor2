@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -29,8 +30,8 @@ public partial class IndividualSlideViewModel : ObservableObject
     // 動画再生中？
     [ObservableProperty] private bool _isPlaying = false;
 
-    // クリッピング範囲
-    [ObservableProperty] private Rect _clipRect = Rect.Empty;
+    // クリッピング有効？
+    [ObservableProperty] private bool _isClippingEnabled = false;
 
     /// <summary>
     /// indexによりItemを選択する
@@ -107,14 +108,28 @@ public partial class IndividualSlideViewModel : ObservableObject
     }
 
     /// <summary>
-    /// クリッピング範囲決定処理
+    /// クリッピング有効化時処理
     /// </summary>
-    [RelayCommand] private void EnterClip()
+    [RelayCommand] private void EnabledClip()
+    {
+
+    }
+
+    /// <summary>
+    /// クリッピング無効化時処理
+    /// </summary>
+    [RelayCommand] private void DisableClip()
     {
         if(Item is null) return;
+        Item.Clipping = Rect.Empty;
+    }
 
-        Item.Clipping = ClipRect;
-
-        System.Diagnostics.Debug.WriteLine($"{Item.Clipping.X}, {Item.Clipping.Y}, {Item.Clipping.Width}, {Item.Clipping.Height}");
+    /// <summary>
+    /// クリッピング範囲リセット処理
+    /// </summary>
+    [RelayCommand] private void ResetClip()
+    {
+        if(Item is null) return;
+        Item.Clipping = Rect.Empty;
     }
 }

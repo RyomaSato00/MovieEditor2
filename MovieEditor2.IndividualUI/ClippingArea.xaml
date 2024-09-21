@@ -1,0 +1,57 @@
+<UserControl x:Class="MovieEditor2.IndividualUI.ClippingArea"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MovieEditor2.IndividualUI"
+             xmlns:xamlBehaviorsWpf="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <CheckBox Name="ClipEnable" Grid.Row="0" Content="クリッピング有効" IsChecked="{Binding IsClippingEnabled}" >
+            <xamlBehaviorsWpf:Interaction.Triggers>
+                <xamlBehaviorsWpf:EventTrigger EventName="Checked" >
+                    <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding EnabledClipCommand}" />
+                </xamlBehaviorsWpf:EventTrigger>
+                <xamlBehaviorsWpf:EventTrigger EventName="Unchecked" >
+                    <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding DisableClipCommand}" />
+                </xamlBehaviorsWpf:EventTrigger>
+            </xamlBehaviorsWpf:Interaction.Triggers>
+        </CheckBox>
+
+        <StackPanel Grid.Row="1" >
+            <StackPanel.Style>
+                <Style TargetType="StackPanel" >
+                    <Setter Property="Visibility" Value="Collapsed" />
+
+                    <!--ClipEnableのチェックボックスがTrueのときだけこのStackPanelを表示する-->
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsChecked, ElementName=ClipEnable}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+
+        <TextBlock Grid.Row="1" FontFamily="Consolas">
+            <TextBlock.Text>
+                <MultiBinding StringFormat="{}{0:F2}, {1:F2}, {2:F2}, {3:F2}" >
+                    <Binding Path="Item.Clipping.X"  />
+                    <Binding Path="Item.Clipping.Y"  />
+                    <Binding Path="Item.Clipping.Width"  />
+                    <Binding Path="Item.Clipping.Height"  />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+
+        <Button Grid.Row="2" Content="リセット" Command="{Binding ResetClipCommand}" />
+
+        </StackPanel>
+    </Grid>
+</UserControl>

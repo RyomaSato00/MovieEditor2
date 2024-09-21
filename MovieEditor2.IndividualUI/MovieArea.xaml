@@ -17,6 +17,7 @@
 
         <local:IndexToVisibilityConverter x:Key="Index2VisibilityConverter" />
         <local:DoubleToSizeConverter x:Key="Double2SizeConverter" />
+        <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
 
         <Storyboard x:Key="MovieStory" SlipBehavior="Slip">
             <MediaTimeline Source="{Binding FilePath, RelativeSource={RelativeSource AncestorType=UserControl}}" Storyboard.TargetName="MoviePlayer"
@@ -46,8 +47,9 @@
                 MediaOpened="MoviePlayer_MediaOpened" />
 
             <!--クリッピング用キャンバス-->
-            <local:ClippingBoard Grid.Column="0" Margin="8" x:Name="MyClippingBoard" ClipRect="{Binding ClipRect, Mode=OneWayToSource}" Target="{Binding ElementName=MoviePlayer}" 
-                OriginWidth="{Binding Item.OriginalInfo.Width}" OriginHeight="{Binding Item.OriginalInfo.Height}" >
+            <local:ClippingBoard Grid.Column="0" Margin="8" x:Name="MyClippingBoard" ClipRect="{Binding Item.Clipping, Mode=TwoWay}" Target="{Binding ElementName=MoviePlayer}" 
+                OriginWidth="{Binding Item.OriginalInfo.Width}" OriginHeight="{Binding Item.OriginalInfo.Height}"
+                Visibility="{Binding IsClippingEnabled, Converter={StaticResource Bool2VisibilityConverter}}" >
                 <local:ClippingBoard.MediaElementSize>
                     <MultiBinding Converter="{StaticResource Double2SizeConverter}" >
                         <Binding Path="ActualWidth" ElementName="MoviePlayer" />

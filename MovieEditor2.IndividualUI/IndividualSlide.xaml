@@ -50,19 +50,7 @@
                     </TreeViewItem.Header>
                     <TreeViewItem>
                         <TreeViewItem.Header>
-                            <StackPanel>
-                                <TextBlock FontFamily="Consolas">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0:F2}, {1:F2}, {2:F2}, {3:F2}" >
-                                            <Binding Path="MyClipping.ClipRect.X" ElementName="MyMovieArea" />
-                                            <Binding Path="MyClipping.ClipRect.Y" ElementName="MyMovieArea" />
-                                            <Binding Path="MyClipping.ClipRect.Width" ElementName="MyMovieArea" />
-                                            <Binding Path="MyClipping.ClipRect.Height" ElementName="MyMovieArea" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                                <Button Content="決定" Command="{Binding EnterClipCommand}" />
-                            </StackPanel>
+                            <local:ClippingArea />
                         </TreeViewItem.Header>
                     </TreeViewItem>
                 </TreeViewItem>
@@ -86,8 +74,8 @@
     </Grid>
 
     <UserControl.InputBindings>
-        <!--Dキーを押したら動画の再生・停止（個別編集画面時）-->
-        <KeyBinding Key="D" Command="{Binding TogglePlayCommand}" />
+        <!--Pキーを押したら動画の再生・停止（個別編集画面時）-->
+        <KeyBinding Key="P" Command="{Binding TogglePlayCommand}" />
         
         <!--Sを押したらトリミング開始位置指定-->
         <KeyBinding Key="S" Command="{Binding PinStartPointCommand}" CommandParameter="{Binding CurrentTime, ElementName=MyMovieArea}" />
@@ -95,10 +83,10 @@
         <!--Eを押したらトリミング終了位置指定-->
         <KeyBinding Key="E" Command="{Binding PinEndPointCommand}" CommandParameter="{Binding CurrentTime, ElementName=MyMovieArea}" />
 
-        <!--↑を押したら前の動画へ-->
-        <KeyBinding Key="Up" Command="{Binding PreviousMovieCommand}" />
+        <!--Qを押したら前の動画へ-->
+        <KeyBinding Key="Q" Command="{Binding PreviousMovieCommand}" />
 
-        <!--↓を押したら次の動画へ-->
-        <KeyBinding Key="Down" Command="{Binding NextMovieCommand}" />
+        <!--Zを押したら次の動画へ-->
+        <KeyBinding Key="Z" Command="{Binding NextMovieCommand}" />
     </UserControl.InputBindings>
 </UserControl>

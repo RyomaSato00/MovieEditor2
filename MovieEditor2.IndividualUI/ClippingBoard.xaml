@@ -9,7 +9,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <Style x:Key="EdgeStyle" TargetType="Path" >
-            <Setter Property="Stroke" Value="Red" />
+            <Setter Property="Stroke" Value="LimeGreen" />
             <Setter Property="StrokeThickness" Value="8" />
         </Style>
     </UserControl.Resources>
@@ -31,24 +31,24 @@
         </Canvas>
 
         <!--エッジ表示用キャンバス-->
-        <Canvas Background="Transparent" ClipToBounds="True" MouseMove="Edge_MouseMove">
+        <Canvas Name="EdgeCanvas" Background="Transparent" ClipToBounds="True" MouseMove="Edge_MouseMove">
             <!-- 左辺と上辺だけの図形を定義 -->
-            <Path Name="TopLeftEdge" Style="{StaticResource EdgeStyle}" Data="M10,0 L40,0 M0,10 L0,40"
+            <Path Name="TopLeftEdge" Style="{StaticResource EdgeStyle}" Data="M-4,0 L40,0 M0,-4 L0,40"
                 MouseLeftButtonDown="Edge_MouseLeftButtonDown"
                 MouseLeftButtonUp="Edge_MouseLeftButtonUp" />
 
             <!-- 上辺と右辺だけの図形を定義 -->
-            <Path Name="TopRightEdge" Style="{StaticResource EdgeStyle}" Data="M-10,0 L-40,0 M0,10 L0,40"
+            <Path Name="TopRightEdge" Style="{StaticResource EdgeStyle}" Data="M4,0 L-40,0 M0,-4 L0,40"
                 MouseLeftButtonDown="Edge_MouseLeftButtonDown"
                 MouseLeftButtonUp="Edge_MouseLeftButtonUp" />
 
             <!-- 右辺と下辺だけの図形を定義 -->
-            <Path Name="BottomRightEdge" Style="{StaticResource EdgeStyle}" Data="M0,-10 L0,-40 M-10,0 L-40,0"
+            <Path Name="BottomRightEdge" Style="{StaticResource EdgeStyle}" Data="M0,-4 L0,-40 M4,0 L-40,0"
                 MouseLeftButtonDown="Edge_MouseLeftButtonDown"
                 MouseLeftButtonUp="Edge_MouseLeftButtonUp" />
 
             <!-- 左辺と下辺だけの図形を定義 -->
-            <Path Name="BottomLeftEdge" Style="{StaticResource EdgeStyle}" Data="M0,-10 L0,-40 M10,0 L40,0"
+            <Path Name="BottomLeftEdge" Style="{StaticResource EdgeStyle}" Data="M0,-4 L0,-40 M-4,0 L40,0"
                 MouseLeftButtonDown="Edge_MouseLeftButtonDown"
                 MouseLeftButtonUp="Edge_MouseLeftButtonUp" />
 

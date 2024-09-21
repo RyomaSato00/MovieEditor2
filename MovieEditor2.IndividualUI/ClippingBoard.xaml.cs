@@ -19,11 +19,14 @@ public partial class ClippingBoard : UserControl
 {
     public static readonly Point Zero = new(0, 0);
 
+    /// <summary> クリッピング範囲（UserControl基準）の最小サイズ </summary>
+    public static readonly Size MinimumSize = new(80, 80);
+
     public static readonly DependencyProperty MousePositionProperty
     = DependencyProperty.Register(nameof(MousePosition), typeof(Point), typeof(ClippingBoard), new PropertyMetadata(Zero));
 
     public static readonly DependencyProperty ClipRectProperty
-    = DependencyProperty.Register(nameof(ClipRect), typeof(Rect), typeof(ClippingBoard), new PropertyMetadata(Rect.Empty));
+    = DependencyProperty.Register(nameof(ClipRect), typeof(Rect), typeof(ClippingBoard), new PropertyMetadata(Rect.Empty, OnClipRectChanged));
 
     public static readonly DependencyProperty OriginWidthProperty
     = DependencyProperty.Register(nameof(OriginWidth), typeof(int), typeof(ClippingBoard), new PropertyMetadata(0));
@@ -93,13 +96,33 @@ public partial class ClippingBoard : UserControl
         set => SetValue(TargetProperty, value);
     }
 
+    /// <summary>
+    /// クリッピング範囲をロードしてUIに反映する
+    /// </summary>
     public void Load()
     {
         Offset = Target.TransformToVisual(this).Transform(Zero);
 
-        UpdateArea(new Rect(Offset, MediaElementSize));
-
-        ClipRect = new Rect(Zero, new Size(OriginWidth, OriginHeight));
+        // クリッピング範囲情報が指定なしのとき
+        if(ClipRect == Rect.Empty)
+        {
+            // クリッピング範囲は動画サイズと同じにする
+            ClipRect = new Rect(Zero, new Size(OriginWidth, OriginHeight));
+            UpdateArea(new Rect(Offset, MediaElementSize));
+        }
+        // クリッピング範囲情報が指定済みのとき
+        else
+        {
+            // クリッピング範囲情報のスケールをUserControl基準のスケールに変換する
+            var areaRect = new Rect
+            {
+                X = Offset.X + ClipRect.X * MediaElementSize.Width / OriginWidth,
+                Y = Offset.Y + ClipRect.Y * MediaElementSize.Height / OriginHeight,
+                Width = ClipRect.Width * MediaElementSize.Width / OriginWidth,
+                Height = ClipRect.Height * MediaElementSize.Height / OriginHeight
+            };
+            UpdateArea(areaRect);
+        }
     }
 
     private void ClippingBoard_Loaded(object sender, RoutedEventArgs e)
@@ -192,6 +215,8 @@ public partial class ClippingBoard : UserControl
         // エッジの移動先がCanvasの範囲外になる場合は境界に移動先を指定する
         if(destinationX < 0) destinationX = 0;
         if(destinationY < 0) destinationY = 0;
+        if(destinationX > EdgeCanvas.ActualWidth) destinationX = EdgeCanvas.ActualWidth;
+        if(destinationY > EdgeCanvas.ActualHeight) destinationY = EdgeCanvas.ActualHeight;
 
         // クリッピング範囲を計算する
         var areaRect = CalculateClip(destinationX, destinationY, _currentDragged.Name);
@@ -228,80 +253,113 @@ public partial class ClippingBoard : UserControl
     /// <returns></returns>
     private Rect CalculateClip(double destinationX, double destinationY, string edgeName)
     {
-        Point location;
-        Size areaSize;
         double topLeftX;
         double topLeftY;
+        double bottomRightX;
+        double bottomRightY;
+        Point topLeft;
+        Point bottomRight;
 
         switch(edgeName)
         {
         case "TopLeftEdge":
-            location = new Point(destinationX, destinationY);
-            areaSize = new Size
-            {
-                Width = Canvas.GetLeft(TopRightEdge) - destinationX,
-                Height = Canvas.GetTop(BottomLeftEdge) - destinationY
-            };
 
+            bottomRightX = Canvas.GetLeft(BottomRightEdge);
+            bottomRightY = Canvas.GetTop(BottomRightEdge);
+
+            // クリッピング範囲が最小範囲を下回らないように設定
+            if(bottomRightX - destinationX < MinimumSize.Width)
+            {
+                destinationX = bottomRightX - MinimumSize.Width;
+            }
+
+            if(bottomRightY - destinationY < MinimumSize.Height)
+            {
+                destinationY = bottomRightY - MinimumSize.Height;
+            }
+
+            topLeft = new Point(destinationX, destinationY);
+            bottomRight = new Point(bottomRightX, bottomRightY);
             break;
 
         case "TopRightEdge":
-            topLeftX = Canvas.GetLeft(TopLeftEdge);
-            location = new Point(topLeftX, destinationY);
-            areaSize = new Size
-            {
-                Width = destinationX - topLeftX,
-                Height = Canvas.GetTop(BottomLeftEdge) - destinationY
-            };
 
+            topLeftX = Canvas.GetLeft(TopLeftEdge);
+            bottomRightY = Canvas.GetTop(BottomRightEdge);
+
+            // クリッピング範囲が最小範囲を下回らないように設定
+            if(destinationX - topLeftX < MinimumSize.Width)
+            {
+                destinationX = topLeftX + MinimumSize.Width;
+            }
+
+            if(bottomRightY - destinationY < MinimumSize.Height)
+            {
+                destinationY = bottomRightY - MinimumSize.Height;
+            }
+
+            topLeft = new Point(topLeftX, destinationY);
+            bottomRight = new Point(destinationX, bottomRightY);
             break;
 
         case "BottomRightEdge":
+
             topLeftX = Canvas.GetLeft(TopLeftEdge);
             topLeftY = Canvas.GetTop(TopLeftEdge);
-            location = new Point(topLeftX, topLeftY);
-            areaSize = new Size
-            {
-                Width = destinationX - topLeftX,
-                Height = destinationY - topLeftY
-            };
 
+            // クリッピング範囲が最小範囲を下回らないように設定
+            if(destinationX - topLeftX < MinimumSize.Width)
+            {
+                destinationX = topLeftX + MinimumSize.Width;
+            }
+
+            if(destinationY - topLeftY < MinimumSize.Height)
+            {
+                destinationY = topLeftY + MinimumSize.Height;
+            }
+
+            topLeft = new Point(topLeftX, topLeftY);
+            bottomRight = new Point(destinationX, destinationY);
             break;
 
         case "BottomLeftEdge":
-            topLeftY = Canvas.GetTop(TopLeftEdge);
-            location = new Point(destinationX, topLeftY);
-            areaSize = new Size
-            {
-                Width = Canvas.GetLeft(TopRightEdge) - destinationX,
-                Height = destinationY - topLeftY
-            };
 
+            topLeftY = Canvas.GetTop(TopLeftEdge);
+            bottomRightX = Canvas.GetLeft(BottomRightEdge);
+
+            // クリッピング範囲が最小範囲を下回らないように設定
+            if(bottomRightX - destinationX < MinimumSize.Width)
+            {
+                destinationX = bottomRightX - MinimumSize.Width;
+            }
+
+            if(destinationY - topLeftY < MinimumSize.Height)
+            {
+                destinationY = topLeftY + MinimumSize.Height;
+            }
+
+            topLeft = new Point(destinationX, topLeftY);
+            bottomRight = new Point(bottomRightX, destinationY);
             break;
 
         default:
             break;
         }
 
-        return new Rect(location, areaSize);
+        return new Rect(topLeft, bottomRight);
     }
 
+    /// <summary>
+    /// ClipRect変更時処理
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private static void OnClipRectChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (sender is not ClippingBoard clippingBoard) return;
 
-    // private static void OnMediaElementSizeChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-    // {
-    //     System.Diagnostics.Debug.WriteLine("media element size changed");
-
-    //     if (sender is not ClippingBoard clippingBoard) return;
-
-    //     if(e.NewValue is not Size size) return;
-
-    //     // System.Diagnostics.Debug.WriteLine($"origin size:{size}");
-
-    //     clippingBoard.Offset = clippingBoard.Target.TransformToVisual(clippingBoard).Transform(Zero);
-
-    //     clippingBoard.UpdateArea(new Rect(clippingBoard.Offset, size));
-
-    //     clippingBoard.ClipRect = new Rect(Zero, new Size(clippingBoard.OriginWidth, clippingBoard.OriginHeight));
-    // }
+        // クリッピング範囲のUIを更新
+        clippingBoard.Dispatcher.BeginInvoke(new Action(clippingBoard.Load));
+    }
 }
 

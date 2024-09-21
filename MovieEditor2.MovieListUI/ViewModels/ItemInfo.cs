@@ -34,7 +34,7 @@ public partial class ItemInfo : ObservableObject
     public TrimmingInfo Trimming { get; }
 
     /// <summary> 動画クリッピング情報 </summary>
-    public Rect Clipping { get; set; } = Rect.Empty;
+    [ObservableProperty] private Rect _clipping = Rect.Empty;
 
     // 速度倍率
     [ObservableProperty] private double? _speed = null;
