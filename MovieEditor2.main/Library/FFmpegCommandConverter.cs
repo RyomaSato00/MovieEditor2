@@ -35,10 +35,10 @@ internal class FFmpegCommandConverter
         }
 
         // クリッピング指定
-        if(itemInfo.Clipping != Rect.Empty)
-        {
-            argList.Add($"-vf crop={itemInfo.Clipping.Width:F2}:{itemInfo.Clipping.Height:F2}:{itemInfo.Clipping.X:F2}:{itemInfo.Clipping.Y:F2}");
-        }
+        // if(itemInfo.Clipping != Rect.Empty)
+        // {
+        //     argList.Add($"-vf crop={itemInfo.Clipping.Width:F2}:{itemInfo.Clipping.Height:F2}:{itemInfo.Clipping.X:F2}:{itemInfo.Clipping.Y:F2}");
+        // }
 
         // フレームレート
         if(0 < setting.FrameRate)

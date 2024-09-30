@@ -5,8 +5,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MovieEditor2.IndividualUI"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:xamlBehaviorsWpf="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             Loaded="MovieArea_Loaded"
+             d:DesignHeight="450" d:DesignWidth="800" >
+
+    <xamlBehaviorsWpf:Interaction.Behaviors>
+        <local:MovieAreaBehavior StoryboardLoadedCommand="{Binding MovieAreaUI.StoryboardLoadedCommand}"
+            MediaOpenedCommand="{Binding MovieAreaUI.MediaOpenedCommand}"
+            CurrentTimeInvalidatedCommand="{Binding MovieAreaUI.FrameUpdatedCommand}"
+            CompletedCommand="{Binding MovieAreaUI.CompletedCommand}" />
+    </xamlBehaviorsWpf:Interaction.Behaviors>
+             
     <UserControl.Resources>
         <Style x:Key="PlayTimeStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Consolas" />
@@ -20,11 +30,12 @@
         <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
 
         <Storyboard x:Key="MovieStory" SlipBehavior="Slip">
-            <MediaTimeline Source="{Binding FilePath, RelativeSource={RelativeSource AncestorType=UserControl}}" Storyboard.TargetName="MoviePlayer"
+            <MediaTimeline Source="{Binding Item.FilePath}" Storyboard.TargetName="MoviePlayer"
                 BeginTime="{Binding Position, ElementName=MoviePlayer}"
                 Duration="{Binding NaturalDuration, ElementName=MoviePlayer}"
                 CurrentTimeInvalidated="Timeline_CurrentTimeInvalidated"
-                Completed="Timeline_Completed" />
+                Completed="Timeline_Completed" >
+            </MediaTimeline>
         </Storyboard>
     </UserControl.Resources>
 
@@ -42,9 +53,9 @@
             </Grid.ColumnDefinitions>
 
             <!--動画-->
-            <MediaElement Grid.Column="0" Name="MoviePlayer" LoadedBehavior="Manual" ScrubbingEnabled="True"
-                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8"
-                MediaOpened="MoviePlayer_MediaOpened" />
+            <MediaElement Grid.Column="0" Name="MoviePlayer" DataContext="{Binding MovieAreaUI}" LoadedBehavior="Manual" ScrubbingEnabled="True"
+                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" MediaOpened="MoviePlayer_MediaOpened" >
+            </MediaElement>
 
             <!--クリッピング用キャンバス-->
             <local:ClippingBoard Grid.Column="0" Margin="8" x:Name="MyClippingBoard" ClipRect="{Binding Item.Clipping, Mode=TwoWay}" Target="{Binding ElementName=MoviePlayer}" 
@@ -65,7 +76,7 @@
                 </Grid.RowDefinitions>
 
                 <!--リロードボタン-->
-                <Button Grid.Row="0" Style="{StaticResource MaterialDesignIconForegroundButton}" Click="Reload_Click" >
+                <Button Grid.Row="0" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding MovieAreaUI.ReloadCommand}" >
                     <materialDesign:PackIcon Kind="Reload" Width="18" Height="18" />
                 </Button>
 
@@ -107,7 +118,7 @@
             </Grid.ColumnDefinitions>
 
             <!--再生・停止ボタン-->
-            <ToggleButton Grid.Column="0" Name="PlayToggle" Checked="Toggle_Checked" Unchecked="Toggle_Unchecked" IsChecked="{Binding IsPlaying}">
+            <ToggleButton Grid.Column="0" Name="PlayToggle" DataContext="{Binding MovieAreaUI}" IsChecked="{Binding IsPlaying}">
                 <!--IsChecked=FalseのときはPlayアイコン、IsChecked=TrueのときはPauseアイコンを表示する-->
                 <ToggleButton.Style>
                     <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignFlatToggleButton}">
@@ -129,27 +140,41 @@
                         </Style.Triggers>
                     </Style>
                 </ToggleButton.Style>
+
+                <xamlBehaviorsWpf:Interaction.Triggers>
+                    <xamlBehaviorsWpf:EventTrigger EventName="Checked" >
+                        <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding PlayCommand}" />
+                    </xamlBehaviorsWpf:EventTrigger>
+                    
+                    <xamlBehaviorsWpf:EventTrigger EventName="Unchecked" >
+                        <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding PauseCommand}" />
+                    </xamlBehaviorsWpf:EventTrigger>
+                </xamlBehaviorsWpf:Interaction.Triggers>
             </ToggleButton>
 
             <!--スライダー（ValueのBindingはソース→UI方向のみ）-->
             <Slider Grid.Column="1" Name="TimeSlider" VerticalAlignment="Center" Margin="8,0,0,0"
-                Maximum="{Binding MaxTime.TotalMilliseconds, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                Value="{Binding CurrentTime.TotalMilliseconds, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay}"
+                Maximum="{Binding MovieAreaUI.MaxTime.TotalMilliseconds}"
+                Value="{Binding MovieAreaUI.CurrentTime.TotalMilliseconds, Mode=OneWay}"
                 IsSelectionRangeEnabled="True"
                 SelectionStart="{Binding Item.Trimming.StartPoint.TotalMilliseconds, Mode=OneWay}"
-                SelectionEnd="{Binding Item.Trimming.EndPoint.TotalMilliseconds, Mode=OneWay}"
-                Thumb.DragStarted="TimeSlider_DragStarted" Thumb.DragCompleted="TimeSlider_DragCompleted"
-                ValueChanged="TimeSlider_ValueChanged" />
+                SelectionEnd="{Binding Item.Trimming.EndPoint.TotalMilliseconds, Mode=OneWay}" >
+                <xamlBehaviorsWpf:Interaction.Behaviors>
+                    <local:MovieAreaSliderBehavior ValueChangedCommand="{Binding MovieAreaUI.ValueChangedCommand}"
+                        DragStartedCommand="{Binding MovieAreaUI.DragStartedCommand}"
+                        DragCompletedCommand="{Binding MovieAreaUI.DragCompletedCommand}" />
+                </xamlBehaviorsWpf:Interaction.Behaviors>
+
+            </Slider>
 
             <!--現在時刻-->
             <TextBlock Grid.Column="2" Style="{StaticResource PlayTimeStyle}"
-                Text="{Binding CurrentTime, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat={}{0:mm\\:ss\\.fff}}" />
+                Text="{Binding MovieAreaUI.CurrentTime, StringFormat={}{0:mm\\:ss\\.fff}}" />
 
             <!--総合長さ-->
             <TextBlock Grid.Column="3" Style="{StaticResource PlayTimeStyle}"
-                Text="{Binding MaxTime, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat= / {0:mm\\:ss\\.fff}}" />
+                Text="{Binding MovieAreaUI.MaxTime, StringFormat= / {0:mm\\:ss\\.fff}}" />
         </Grid>
     </Grid>
-
 
 </UserControl>

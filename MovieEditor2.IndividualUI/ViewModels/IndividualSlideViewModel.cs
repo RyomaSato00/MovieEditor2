@@ -21,6 +21,8 @@ public partial class IndividualSlideViewModel : ObservableObject
     /// <summary> 動画ファイルリスト </summary>
     public ObservableCollection<ItemInfo> ItemsSource { get; }
 
+    public MovieAreaViewModel MovieAreaUI { get; } = new();
+
     // ターゲット動画ファイル
     [ObservableProperty] private ItemInfo? _item = null;
 
@@ -41,6 +43,7 @@ public partial class IndividualSlideViewModel : ObservableObject
     {
         Item = ItemsSource[index];
         ItemIndex = index;
+        MovieAreaUI.LoadMovie();
     }
 
     /// <summary>
@@ -82,6 +85,7 @@ public partial class IndividualSlideViewModel : ObservableObject
         {
             ItemIndex--;
             Item = ItemsSource[ItemIndex.Value];
+            MovieAreaUI.LoadMovie();
         }
     }
 
@@ -96,6 +100,7 @@ public partial class IndividualSlideViewModel : ObservableObject
         {
             ItemIndex++;
             Item = ItemsSource[ItemIndex.Value];
+            MovieAreaUI.LoadMovie();
         }
     }
 

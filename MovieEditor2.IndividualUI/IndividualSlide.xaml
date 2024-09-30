@@ -26,7 +26,7 @@
             </Grid.ColumnDefinitions>
 
             <!--動画表示-->
-            <local:MovieArea Grid.Column="0" x:Name="MyMovieArea" FilePath="{Binding Item.FilePath}" />
+            <local:MovieArea Grid.Column="0" x:Name="MyMovieArea" />
 
             <!--縦区切り線-->
             <Separator Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" />
@@ -40,7 +40,7 @@
                     <TreeViewItem>
                         <TreeViewItem.Header>
                             <!--動画表示エリアから動画の現在時刻を取得する-->
-                            <local:TrimmingArea CurrentTime="{Binding CurrentTime, ElementName=MyMovieArea, Mode=OneWay}" />
+                            <local:TrimmingArea CurrentTime="{Binding MovieAreaUI.CurrentTime}" />
                         </TreeViewItem.Header>
                     </TreeViewItem>
                 </TreeViewItem>
@@ -78,10 +78,10 @@
         <KeyBinding Key="P" Command="{Binding TogglePlayCommand}" />
         
         <!--Sを押したらトリミング開始位置指定-->
-        <KeyBinding Key="S" Command="{Binding PinStartPointCommand}" CommandParameter="{Binding CurrentTime, ElementName=MyMovieArea}" />
+        <KeyBinding Key="S" Command="{Binding PinStartPointCommand}" CommandParameter="{Binding MovieAreaUI.CurrentTime}" />
 
         <!--Eを押したらトリミング終了位置指定-->
-        <KeyBinding Key="E" Command="{Binding PinEndPointCommand}" CommandParameter="{Binding CurrentTime, ElementName=MyMovieArea}" />
+        <KeyBinding Key="E" Command="{Binding PinEndPointCommand}" CommandParameter="{Binding MovieAreaUI.CurrentTime}" />
 
         <!--Qを押したら前の動画へ-->
         <KeyBinding Key="Q" Command="{Binding PreviousMovieCommand}" />
