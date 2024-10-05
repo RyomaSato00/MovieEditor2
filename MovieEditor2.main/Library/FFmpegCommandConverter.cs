@@ -28,17 +28,29 @@ internal class FFmpegCommandConverter
         // スケールのコマンドを取得
         var scaleArg = ToScaleArg(itemInfo.OriginalInfo, setting.Width, setting.Height);
 
+        // -vfの可否
+        if (scaleArg is not null || itemInfo.Clipping != Rect.Empty || itemInfo.Speed is not null && itemInfo.Speed > 0)
+        {
+            argList.Add("-vf");
+        }
+
         // スケール指定
         if(scaleArg is not null)
         {
-            argList.Add($"-vf {scaleArg}");
+            argList.Add(scaleArg);
         }
 
         // クリッピング指定
-        // if(itemInfo.Clipping != Rect.Empty)
-        // {
-        //     argList.Add($"-vf crop={itemInfo.Clipping.Width:F2}:{itemInfo.Clipping.Height:F2}:{itemInfo.Clipping.X:F2}:{itemInfo.Clipping.Y:F2}");
-        // }
+        if(itemInfo.Clipping != Rect.Empty)
+        {
+            argList.Add($"crop={itemInfo.Clipping.Width:F2}:{itemInfo.Clipping.Height:F2}:{itemInfo.Clipping.X:F2}:{itemInfo.Clipping.Y:F2}");
+        }
+
+        // 速度倍率
+        if(itemInfo.Speed is not null && itemInfo.Speed > 0)
+        {
+            argList.Add($"setpts=PTS/{itemInfo.Speed} -af atempo={itemInfo.Speed}");
+        }
 
         // フレームレート
         if(0 < setting.FrameRate)
@@ -68,12 +80,6 @@ internal class FFmpegCommandConverter
         if(itemInfo.Trimming.EndPoint is not null)
         {
             argList.Add($"-to {itemInfo.Trimming.EndPoint:hh\\:mm\\:ss\\.fff}");
-        }
-
-        // 速度倍率
-        if(itemInfo.Speed is not null && itemInfo.Speed > 0)
-        {
-            argList.Add($"-vf setpts=PTS/{itemInfo.Speed} -af atempo={itemInfo.Speed}");
         }
 
         // 出力先指定

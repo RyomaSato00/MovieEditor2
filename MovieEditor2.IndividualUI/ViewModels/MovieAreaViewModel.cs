@@ -20,7 +20,11 @@ public partial class MovieAreaViewModel : ObservableObject
     /// <summary> 動画の再生制御を行うStoryboard </summary>
     public Storyboard Story { get; private set; } = new();
 
-    // 動画の現在時刻
+    public ClippingBoardViewModel ClippingBoardUI { get; } = new();
+
+    [ObservableProperty] private ItemInfo? _item = null;
+
+    // 動画の現在時刻（テキスト表示用）
     [ObservableProperty] private TimeSpan _currentTime;
 
     /// <summary> MediaElementで取得した動画の再生時間 </summary>
@@ -33,16 +37,27 @@ public partial class MovieAreaViewModel : ObservableObject
     [ObservableProperty] private bool _isPlaying = false;
 
     /// <summary> 動画の音量 </summary>
-    [ObservableProperty] private double _audioVolume;
+    // [ObservableProperty] private double _audioVolume;
 
     /// <summary> オーディオボリューム量を一時保管するための変数 </summary>
-    private double _audioVolumeStore;
+    // private double _audioVolumeStore;
 
     /// <summary> 動画が最終時刻まで進んだときに立たせるフラグ </summary>
     private bool _movieCompleted = false;
 
-    /// <summary> ValueChangedイベント時にSeekの実行可否を制御するためのフラグ </summary>
-    private bool _isValueChangedEnabled = false;
+    /// <summary> Sliderドラッグ中？ </summary>
+    private bool _isSliderDragging = false;
+
+    /// <summary>
+    /// 動画をロードする(Begin)
+    /// </summary>
+    /// <param name="item"></param>
+    public void LoadMovie(ItemInfo item)
+    {
+        Item = item;
+        ClippingBoardUI.UpdateItem(item);
+        LoadMovie();
+    }
 
     /// <summary>
     /// 動画をロードする(Begin)
@@ -57,17 +72,15 @@ public partial class MovieAreaViewModel : ObservableObject
             System.Diagnostics.Debug.WriteLine("movie story is null");
             return;
         }
-        System.Diagnostics.Debug.WriteLine("load movie");
+
+        // 動画読み込み＆再生
         Story.Begin();
 
+        // 動画停止中状態ならここでポーズする
         if(false == IsPlaying)
         {
             Story.Pause();
         }
-
-        // System.Diagnostics.Debug.WriteLine($"duration:{Story.Duration}");
-
-        // MyClippingBoard.Load();
     }
 
     /// <summary>
@@ -144,6 +157,12 @@ public partial class MovieAreaViewModel : ObservableObject
     {
         // 動画の現在時刻時刻をMediaElementから取得し、CurrentTimeに反映する
         CurrentTime = position;
+
+        // スライダーをドラッグしていないときだけ、このタイミングでスライダーのValueを更新する
+        if (_isSliderDragging == false)
+        {
+            TimeSliderValue = position.TotalMilliseconds;
+        }
     }
 
     /// <summary>
@@ -167,11 +186,11 @@ public partial class MovieAreaViewModel : ObservableObject
     {
         // 動画のオーディオボリュームを記録する
         // _audioVolume = MoviePlayer.Volume;
-        _audioVolumeStore = AudioVolume;
+        // _audioVolumeStore = AudioVolume;
 
         // 動画のオーディオを消音する
         // MoviePlayer.Volume = 0;
-        AudioVolume = 0;
+        // AudioVolume = 0;
 
         // 動画が再生中であれば、一時停止にする
         if(IsPlaying == true)
@@ -180,7 +199,7 @@ public partial class MovieAreaViewModel : ObservableObject
         }
 
         // ValueChangedイベント時にSeekを有効にする
-        _isValueChangedEnabled = true;
+        _isSliderDragging = true;
     }
 
     /// <summary>
@@ -191,7 +210,7 @@ public partial class MovieAreaViewModel : ObservableObject
     [RelayCommand] private void DragCompleted()
     {
         // ValueChangedイベント時にSeekを無効にする
-        _isValueChangedEnabled = false;
+        _isSliderDragging = false;
 
         // 動画が再生中であれば、再生を再開する
         if(IsPlaying == true)
@@ -201,7 +220,7 @@ public partial class MovieAreaViewModel : ObservableObject
 
         // 動画のオーディオボリュームを元に戻す
         // MoviePlayer.Volume = _audioVolume;
-        AudioVolume = _audioVolumeStore;
+        // AudioVolume = _audioVolumeStore;
     }
 
     /// <summary>
@@ -212,7 +231,7 @@ public partial class MovieAreaViewModel : ObservableObject
     [RelayCommand] private void ValueChanged(RoutedPropertyChangedEventArgs<double> e)
     {
         // （スライダードラッグ中 OR 動画停止中）AND（Value変化量が10msecより大きい）とき
-        if((_isValueChangedEnabled || IsPlaying == false) && Math.Abs(e.NewValue - e.OldValue) > ValueChangedEnableMsec)
+        if((_isSliderDragging || IsPlaying == false) && Math.Abs(e.NewValue - CurrentTime.TotalMilliseconds) > ValueChangedEnableMsec)
         {
             // スライダーのValueに合わせてSeekする
             Story.Seek(TimeSpan.FromMilliseconds(Math.Round(e.NewValue)));
