@@ -10,6 +10,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Microsoft.Xaml.Behaviors;
+
 namespace MovieEditor2.IndividualUI;
 
 /// <summary>
@@ -22,72 +24,18 @@ public partial class ClippingBoard : UserControl
     /// <summary> クリッピング範囲（UserControl基準）の最小サイズ </summary>
     public static readonly Size MinimumSize = new(80, 80);
 
-    public static readonly DependencyProperty MousePositionProperty
-    = DependencyProperty.Register(nameof(MousePosition), typeof(Point), typeof(ClippingBoard), new PropertyMetadata(Zero));
+    /// <summary> Offset変更イベント </summary>
+    public event Action<Point>? OnOffsetRefreshed = null;
 
-    public static readonly DependencyProperty ClipRectProperty
-    = DependencyProperty.Register(nameof(ClipRect), typeof(Rect), typeof(ClippingBoard), new PropertyMetadata(Rect.Empty, OnClipRectChanged));
+    /// <summary> マウス移動イベント </summary>
+    public event Action<Point>? OnMouseMoved = null;
 
-    public static readonly DependencyProperty OriginWidthProperty
-    = DependencyProperty.Register(nameof(OriginWidth), typeof(int), typeof(ClippingBoard), new PropertyMetadata(0));
+    /// <summary> ClipRect変更イベント </summary>
+    public event Action<Rect>? OnClipRectChanged = null;
 
-    public static readonly DependencyProperty OriginHeightProperty
-    = DependencyProperty.Register(nameof(OriginHeight), typeof(int), typeof(ClippingBoard), new PropertyMetadata(0));
-
-    public static readonly DependencyProperty MediaElementSizeProperty
-    = DependencyProperty.Register(nameof(MediaElementSize), typeof(Size), typeof(ClippingBoard), new PropertyMetadata(Size.Empty));
 
     public static readonly DependencyProperty TargetProperty
     = DependencyProperty.Register(nameof(Target), typeof(Visual), typeof(ClippingBoard), new PropertyMetadata(null));
-
-    public ClippingBoard()
-    {
-        InitializeComponent();
-    }
-
-    /// <summary> 今ドラッグしているエッジまたはnull </summary>
-    private FrameworkElement? _currentDragged = null;
-
-    /// <summary> ドラッグしたエッジを基準にしたマウスクリック座標 </summary>
-    private Point _relativePosition = Zero;
-
-    /// <summary> このUserControlを基準にしたMediaElementの座標 </summary>
-    public Point Offset { get; private set; } = Zero;
-
-    /// <summary> 動画のサイズに合わせて補正したマウスの現在座標 </summary>
-    public Point MousePosition
-    {
-        get => (Point)GetValue(MousePositionProperty);
-        set => SetValue(MousePositionProperty, value);
-    }
-
-    /// <summary> 動画のクリッピング範囲 </summary>
-    public Rect ClipRect
-    {
-        get => (Rect)GetValue(ClipRectProperty);
-        set => SetValue(ClipRectProperty, value);
-    }
-
-    /// <summary> 動画の実幅 </summary>
-    public int OriginWidth
-    {
-        get => (int)GetValue(OriginWidthProperty);
-        set => SetValue(OriginWidthProperty, value);
-    }
-
-    /// <summary> 動画の実高さ </summary>
-    public int OriginHeight
-    {
-        get => (int)GetValue(OriginHeightProperty);
-        set => SetValue(OriginHeightProperty, value);
-    }
-
-    /// <summary> MediaElementのサイズ </summary>
-    public Size MediaElementSize
-    {
-        get => (Size)GetValue(MediaElementSizeProperty);
-        set => SetValue(MediaElementSizeProperty, value);
-    }
 
     /// <summary> MediaElementオブジェクト </summary>
     public Visual Target
@@ -96,45 +44,39 @@ public partial class ClippingBoard : UserControl
         set => SetValue(TargetProperty, value);
     }
 
+    /// <summary> このUserControlを基準にしたMediaElementの座標 </summary>
+    private Point _offset = Zero;
+
+    /// <summary> 今ドラッグしているエッジまたはnull </summary>
+    private FrameworkElement? _currentDragged = null;
+
+    /// <summary> ドラッグしたエッジを基準にしたマウスクリック座標 </summary>
+    private Point _relativePosition = Zero;
+
+    public ClippingBoard()
+    {
+        InitializeComponent();
+    }
+
     /// <summary>
-    /// クリッピング範囲をロードしてUIに反映する
+    /// Offset再取得処理
     /// </summary>
-    public void Load()
+    public void RefreshOffset()
     {
-        Offset = Target.TransformToVisual(this).Transform(Zero);
+        _offset = Target.TransformToVisual(this).Transform(Zero);
 
-        // クリッピング範囲情報が指定なしのとき
-        if(ClipRect == Rect.Empty)
-        {
-            // クリッピング範囲は動画サイズと同じにする
-            ClipRect = new Rect(Zero, new Size(OriginWidth, OriginHeight));
-            UpdateArea(new Rect(Offset, MediaElementSize));
-        }
-        // クリッピング範囲情報が指定済みのとき
-        else
-        {
-            // クリッピング範囲情報のスケールをUserControl基準のスケールに変換する
-            var areaRect = new Rect
-            {
-                X = Offset.X + ClipRect.X * MediaElementSize.Width / OriginWidth,
-                Y = Offset.Y + ClipRect.Y * MediaElementSize.Height / OriginHeight,
-                Width = ClipRect.Width * MediaElementSize.Width / OriginWidth,
-                Height = ClipRect.Height * MediaElementSize.Height / OriginHeight
-            };
-            UpdateArea(areaRect);
-        }
+        // Offset再取得通知
+        OnOffsetRefreshed?.Invoke(_offset);
     }
 
-    private void ClippingBoard_Loaded(object sender, RoutedEventArgs e)
-    {
-
-    }
-
+    /// <summary>
+    /// キャンバスのサイズ変更時処理
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void Canvas_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         BaseGeometry.Rect = new Rect(0, 0, ((Canvas)sender).ActualWidth, ((Canvas)sender).ActualHeight);
-
-        Dispatcher.BeginInvoke(new Action(Load));
     }
 
     /// <summary>
@@ -195,12 +137,8 @@ public partial class ClippingBoard : UserControl
         // UserControl基準のマウス座標を取得
         var current = e.GetPosition(this);
 
-        // マウス座標を動画のサイズとMediaElementの位置に合わせて補正
-        MousePosition = new Point
-        {
-            X = (current.X - Offset.X) * OriginWidth / MediaElementSize.Width,
-            Y = (current.Y - Offset.Y) * OriginHeight / MediaElementSize.Height
-        };
+        // マウス座標変更通知
+        OnMouseMoved?.Invoke(current);
 
         // エッジをドラッグ中でなければここで終了
         if(_currentDragged is null) return;
@@ -224,21 +162,8 @@ public partial class ClippingBoard : UserControl
         // クリッピング範囲UI表示更新
         UpdateArea(areaRect);
 
-        // 動画の実サイズに合わせて補正
-        var position = new Point
-        {
-            X = (areaRect.X - Offset.X) * OriginWidth / MediaElementSize.Width,
-            Y = (areaRect.Y - Offset.Y) * OriginHeight / MediaElementSize.Height
-        };
-
-        var size = new Size
-        {
-            Width = areaRect.Width * OriginWidth / MediaElementSize.Width,
-            Height = areaRect.Height * OriginHeight / MediaElementSize.Height
-        };
-
-        // 動画のクリッピング実範囲を取得
-        ClipRect = new Rect(position, size);
+        // クリッピング範囲変更通知
+        OnClipRectChanged?.Invoke(areaRect);
     }
 
     /// <summary>
@@ -347,19 +272,6 @@ public partial class ClippingBoard : UserControl
         }
 
         return new Rect(topLeft, bottomRight);
-    }
-
-    /// <summary>
-    /// ClipRect変更時処理
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private static void OnClipRectChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-    {
-        if (sender is not ClippingBoard clippingBoard) return;
-
-        // クリッピング範囲のUIを更新
-        clippingBoard.Dispatcher.BeginInvoke(new Action(clippingBoard.Load));
     }
 }
 

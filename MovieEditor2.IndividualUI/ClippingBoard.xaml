@@ -4,16 +4,36 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MovieEditor2.IndividualUI"
+             xmlns:xamlBehaviorsWpf="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
-             Loaded="ClippingBoard_Loaded"
              d:DesignHeight="450" d:DesignWidth="800">
+    <xamlBehaviorsWpf:Interaction.Behaviors>
+        <local:ClippingBoardBehavior RefreshOffsetCommand="{Binding RefreshOffsetCommand}"
+            MouseMovedCommand="{Binding MouseMovedCommand}"
+            ClipRectChangedCommand="{Binding ClipRectChangedCommand}" />
+    </xamlBehaviorsWpf:Interaction.Behaviors>
+
+    <!--ViewModel → View の方向に制御を要求するためのTrigger-->
+    <xamlBehaviorsWpf:Interaction.Triggers>
+        <xamlBehaviorsWpf:PropertyChangedTrigger Binding="{Binding UpdateEdgesRequest}">
+            <local:UpdateEdgesAction />
+        </xamlBehaviorsWpf:PropertyChangedTrigger>
+
+        <xamlBehaviorsWpf:PropertyChangedTrigger Binding="{Binding RefreshOffsetRequest}">
+            <local:RefreshOffsetAction />
+        </xamlBehaviorsWpf:PropertyChangedTrigger>
+    </xamlBehaviorsWpf:Interaction.Triggers>
+
     <UserControl.Resources>
         <Style x:Key="EdgeStyle" TargetType="Path" >
             <Setter Property="Stroke" Value="LimeGreen" />
             <Setter Property="StrokeThickness" Value="8" />
         </Style>
+
+        <BooleanToVisibilityConverter x:Key="Bool2VisibilityConverter" />
     </UserControl.Resources>
-    <Grid>
+
+    <Grid Visibility="{Binding IsClippingEnabled, Converter={StaticResource Bool2VisibilityConverter}}">
         <!--くり抜き用キャンバス-->
         <Canvas Name="ParentCanvas" Background="Black" Opacity="0.5" SizeChanged="Canvas_SizeChanged">
             <Canvas.Clip>
@@ -56,8 +76,8 @@
             <TextBlock Canvas.Right="5" Canvas.Bottom="0" FontFamily="Consolas" FontSize="10" >
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}{0:F0} {1:F0}" >
-                        <Binding Path="MousePosition.X" RelativeSource="{RelativeSource AncestorType=UserControl}" />
-                        <Binding Path="MousePosition.Y" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                        <Binding Path="MousePoint.X" />
+                        <Binding Path="MousePoint.Y" />
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>

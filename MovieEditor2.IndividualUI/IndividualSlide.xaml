@@ -25,8 +25,29 @@
                 <ColumnDefinition Width="360" />    <!--編集設定エリア-->
             </Grid.ColumnDefinitions>
 
+            <!--DataGridのItemからViewModelへアクセスするためのProxy-->
+            <FrameworkElement Name="DataContextProxy" DataContext="{Binding}" />
+
             <!--動画表示-->
-            <local:MovieArea Grid.Column="0" x:Name="MyMovieArea" />
+            <local:MovieArea Grid.Column="0" x:Name="MyMovieArea" DataContext="{Binding MovieAreaUI}"
+                UpCommand="{Binding DataContext.PreviousMovieCommand, Source={x:Reference DataContextProxy}}"
+                DownCommand="{Binding DataContext.NextMovieCommand, Source={x:Reference DataContextProxy}}">
+                <!--これ以上前に戻れないときはボタンを非表示-->
+                <local:MovieArea.UpVisibility>
+                    <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="previous">
+                        <Binding Path="DataContext.ItemIndex" Source="{x:Reference DataContextProxy}" />
+                        <Binding Path="DataContext.ItemsSource.Count" Source="{x:Reference DataContextProxy}" />
+                    </MultiBinding>
+                </local:MovieArea.UpVisibility>
+
+                <!--これ以上次に進めないときはボタンを非表示-->
+                <local:MovieArea.DownVisibility>
+                    <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="next">
+                        <Binding Path="DataContext.ItemIndex" Source="{x:Reference DataContextProxy}" />
+                        <Binding Path="DataContext.ItemsSource.Count" Source="{x:Reference DataContextProxy}" />
+                    </MultiBinding>
+                </local:MovieArea.DownVisibility>
+            </local:MovieArea>
 
             <!--縦区切り線-->
             <Separator Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="2" />

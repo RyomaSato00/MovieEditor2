@@ -11,10 +11,11 @@
              d:DesignHeight="450" d:DesignWidth="800" >
 
     <xamlBehaviorsWpf:Interaction.Behaviors>
-        <local:MovieAreaBehavior StoryboardLoadedCommand="{Binding MovieAreaUI.StoryboardLoadedCommand}"
-            MediaOpenedCommand="{Binding MovieAreaUI.MediaOpenedCommand}"
-            CurrentTimeInvalidatedCommand="{Binding MovieAreaUI.FrameUpdatedCommand}"
-            CompletedCommand="{Binding MovieAreaUI.CompletedCommand}" />
+        <local:MovieAreaBehavior StoryboardLoadedCommand="{Binding StoryboardLoadedCommand}"
+            MediaOpenedCommand="{Binding MediaOpenedCommand}"
+            CurrentTimeInvalidatedCommand="{Binding FrameUpdatedCommand}"
+            CompletedCommand="{Binding CompletedCommand}"
+            MediaElementSizeChangedCommand="{Binding ClippingBoardUI.RefreshMediaElementSizeCommand}" />
     </xamlBehaviorsWpf:Interaction.Behaviors>
              
     <UserControl.Resources>
@@ -53,20 +54,14 @@
             </Grid.ColumnDefinitions>
 
             <!--動画-->
-            <MediaElement Grid.Column="0" Name="MoviePlayer" DataContext="{Binding MovieAreaUI}" LoadedBehavior="Manual" ScrubbingEnabled="True"
-                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" MediaOpened="MoviePlayer_MediaOpened" >
+            <MediaElement Grid.Column="0" Name="MoviePlayer" LoadedBehavior="Manual" ScrubbingEnabled="True"
+                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" MediaOpened="MoviePlayer_MediaOpened"
+                SizeChanged="MoviePlayer_SizeChanged" >
             </MediaElement>
 
             <!--クリッピング用キャンバス-->
-            <local:ClippingBoard Grid.Column="0" Margin="8" x:Name="MyClippingBoard" ClipRect="{Binding Item.Clipping, Mode=TwoWay}" Target="{Binding ElementName=MoviePlayer}" 
-                OriginWidth="{Binding Item.OriginalInfo.Width}" OriginHeight="{Binding Item.OriginalInfo.Height}"
-                Visibility="{Binding IsClippingEnabled, Converter={StaticResource Bool2VisibilityConverter}}" >
-                <local:ClippingBoard.MediaElementSize>
-                    <MultiBinding Converter="{StaticResource Double2SizeConverter}" >
-                        <Binding Path="ActualWidth" ElementName="MoviePlayer" />
-                        <Binding Path="ActualHeight" ElementName="MoviePlayer" />
-                    </MultiBinding>
-                </local:ClippingBoard.MediaElementSize>
+            <local:ClippingBoard Grid.Column="0" Margin="8" x:Name="MyClippingBoard" DataContext="{Binding ClippingBoardUI}" 
+                Target="{Binding ElementName=MoviePlayer}" >
             </local:ClippingBoard>
 
             <Grid Grid.Column="1">
@@ -76,33 +71,21 @@
                 </Grid.RowDefinitions>
 
                 <!--リロードボタン-->
-                <Button Grid.Row="0" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding MovieAreaUI.ReloadCommand}" >
+                <Button Grid.Row="0" Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding ReloadCommand}" >
                     <materialDesign:PackIcon Kind="Reload" Width="18" Height="18" />
                 </Button>
 
                 <StackPanel Grid.Row="1" VerticalAlignment="Center">
                     <!--前へボタン-->
-                    <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding PreviousMovieCommand}" >
+                    <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding UpCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                        Visibility="{Binding UpVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}" >
                         <materialDesign:PackIcon Kind="Triangle" Width="18" Height="18"/>
-                        <!--これ以上前に戻れないときはボタンを非表示-->
-                        <Button.Visibility>
-                            <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="previous">
-                                <Binding Path="ItemIndex" />
-                                <Binding Path="ItemsSource.Count" />
-                            </MultiBinding>
-                        </Button.Visibility>
                     </Button>
 
                     <!--次へボタン-->
-                    <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding NextMovieCommand}" Margin="0,4,0,0" >
+                    <Button Style="{StaticResource MaterialDesignIconForegroundButton}" Command="{Binding DownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,4,0,0"
+                        Visibility="{Binding DownVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}" >
                         <materialDesign:PackIcon Kind="TriangleDown" Width="18" Height="18" />
-                        <!--これ以上次に進めないときはボタンを非表示-->
-                        <Button.Visibility>
-                            <MultiBinding Converter="{StaticResource Index2VisibilityConverter}" ConverterParameter="next">
-                                <Binding Path="ItemIndex" />
-                                <Binding Path="ItemsSource.Count" />
-                            </MultiBinding>
-                        </Button.Visibility>
                     </Button>
                 </StackPanel>
             </Grid>
@@ -118,7 +101,7 @@
             </Grid.ColumnDefinitions>
 
             <!--再生・停止ボタン-->
-            <ToggleButton Grid.Column="0" Name="PlayToggle" DataContext="{Binding MovieAreaUI}" IsChecked="{Binding IsPlaying}">
+            <ToggleButton Grid.Column="0" Name="PlayToggle" IsChecked="{Binding IsPlaying}">
                 <!--IsChecked=FalseのときはPlayアイコン、IsChecked=TrueのときはPauseアイコンを表示する-->
                 <ToggleButton.Style>
                     <Style TargetType="ToggleButton" BasedOn="{StaticResource MaterialDesignFlatToggleButton}">
@@ -154,26 +137,26 @@
 
             <!--スライダー（ValueのBindingはソース→UI方向のみ）-->
             <Slider Grid.Column="1" Name="TimeSlider" VerticalAlignment="Center" Margin="8,0,0,0"
-                Maximum="{Binding MovieAreaUI.MaxTime.TotalMilliseconds}"
-                Value="{Binding MovieAreaUI.CurrentTime.TotalMilliseconds, Mode=OneWay}"
+                Maximum="{Binding MaxTime.TotalMilliseconds}"
+                Value="{Binding TimeSliderValue}"
                 IsSelectionRangeEnabled="True"
                 SelectionStart="{Binding Item.Trimming.StartPoint.TotalMilliseconds, Mode=OneWay}"
                 SelectionEnd="{Binding Item.Trimming.EndPoint.TotalMilliseconds, Mode=OneWay}" >
                 <xamlBehaviorsWpf:Interaction.Behaviors>
-                    <local:MovieAreaSliderBehavior ValueChangedCommand="{Binding MovieAreaUI.ValueChangedCommand}"
-                        DragStartedCommand="{Binding MovieAreaUI.DragStartedCommand}"
-                        DragCompletedCommand="{Binding MovieAreaUI.DragCompletedCommand}" />
+                    <local:MovieAreaSliderBehavior ValueChangedCommand="{Binding ValueChangedCommand}"
+                        DragStartedCommand="{Binding DragStartedCommand}"
+                        DragCompletedCommand="{Binding DragCompletedCommand}" />
                 </xamlBehaviorsWpf:Interaction.Behaviors>
 
             </Slider>
 
             <!--現在時刻-->
             <TextBlock Grid.Column="2" Style="{StaticResource PlayTimeStyle}"
-                Text="{Binding MovieAreaUI.CurrentTime, StringFormat={}{0:mm\\:ss\\.fff}}" />
+                Text="{Binding CurrentTime, StringFormat={}{0:mm\\:ss\\.fff}}" />
 
             <!--総合長さ-->
             <TextBlock Grid.Column="3" Style="{StaticResource PlayTimeStyle}"
-                Text="{Binding MovieAreaUI.MaxTime, StringFormat= / {0:mm\\:ss\\.fff}}" />
+                Text="{Binding MaxTime, StringFormat= / {0:mm\\:ss\\.fff}}" />
         </Grid>
     </Grid>
 

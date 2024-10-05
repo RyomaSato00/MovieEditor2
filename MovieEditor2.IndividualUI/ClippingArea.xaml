@@ -14,16 +14,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         
-        <CheckBox Name="ClipEnable" Grid.Row="0" Content="クリッピング有効" IsChecked="{Binding IsClippingEnabled}" >
-            <xamlBehaviorsWpf:Interaction.Triggers>
-                <xamlBehaviorsWpf:EventTrigger EventName="Checked" >
-                    <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding EnabledClipCommand}" />
-                </xamlBehaviorsWpf:EventTrigger>
-                <xamlBehaviorsWpf:EventTrigger EventName="Unchecked" >
-                    <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding DisableClipCommand}" />
-                </xamlBehaviorsWpf:EventTrigger>
-            </xamlBehaviorsWpf:Interaction.Triggers>
-        </CheckBox>
+        <CheckBox Name="ClipEnable" Grid.Row="0" Content="クリッピング有効" IsChecked="{Binding MovieAreaUI.ClippingBoardUI.IsClippingEnabled}" />
 
         <StackPanel Grid.Row="1" >
             <StackPanel.Style>

@@ -21,6 +21,7 @@ public partial class IndividualSlideViewModel : ObservableObject
     /// <summary> 動画ファイルリスト </summary>
     public ObservableCollection<ItemInfo> ItemsSource { get; }
 
+    /// <summary> 動画再生エリアのViewModel </summary>
     public MovieAreaViewModel MovieAreaUI { get; } = new();
 
     // ターゲット動画ファイル
@@ -29,11 +30,18 @@ public partial class IndividualSlideViewModel : ObservableObject
     // ターゲット動画ファイルのインデックス
     [ObservableProperty] private int? _itemIndex = null;
 
-    // 動画再生中？
-    [ObservableProperty] private bool _isPlaying = false;
+    /// <summary>
+    /// Item変更時処理
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    partial void OnItemChanged(ItemInfo? value)
+    {
+        if (value is null) return;
 
-    // クリッピング有効？
-    [ObservableProperty] private bool _isClippingEnabled = false;
+        // 動画の再生準備
+        MovieAreaUI.LoadMovie(value);
+    }
 
     /// <summary>
     /// indexによりItemを選択する
@@ -43,7 +51,6 @@ public partial class IndividualSlideViewModel : ObservableObject
     {
         Item = ItemsSource[index];
         ItemIndex = index;
-        MovieAreaUI.LoadMovie();
     }
 
     /// <summary>
@@ -85,7 +92,6 @@ public partial class IndividualSlideViewModel : ObservableObject
         {
             ItemIndex--;
             Item = ItemsSource[ItemIndex.Value];
-            MovieAreaUI.LoadMovie();
         }
     }
 
@@ -100,7 +106,6 @@ public partial class IndividualSlideViewModel : ObservableObject
         {
             ItemIndex++;
             Item = ItemsSource[ItemIndex.Value];
-            MovieAreaUI.LoadMovie();
         }
     }
 
@@ -109,24 +114,7 @@ public partial class IndividualSlideViewModel : ObservableObject
     /// </summary>
     [RelayCommand] private void TogglePlay()
     {
-        IsPlaying = !IsPlaying;
-    }
-
-    /// <summary>
-    /// クリッピング有効化時処理
-    /// </summary>
-    [RelayCommand] private void EnabledClip()
-    {
-
-    }
-
-    /// <summary>
-    /// クリッピング無効化時処理
-    /// </summary>
-    [RelayCommand] private void DisableClip()
-    {
-        if(Item is null) return;
-        Item.Clipping = Rect.Empty;
+        MovieAreaUI.IsPlaying = !MovieAreaUI.IsPlaying;
     }
 
     /// <summary>
@@ -135,6 +123,7 @@ public partial class IndividualSlideViewModel : ObservableObject
     [RelayCommand] private void ResetClip()
     {
         if(Item is null) return;
-        Item.Clipping = Rect.Empty;
+
+        MovieAreaUI.ClippingBoardUI.ResetClipping();
     }
 }
