@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using MovieEditor2.CommonSettingUI.ViewModels;
+using MovieEditor2.main.ViewModels;
 using MovieEditor2.MovieListUI.ViewModels;
 
 namespace MovieEditor2.main.Library;
@@ -24,20 +25,19 @@ internal class ParallelCommandProcessor : IDisposable
     /// <summary>
     /// 並列実行
     /// </summary>
-    /// <param name="sources"></param>
-    /// <param name="commandConverter">コマンドコンバータ</param>
-    public void RunParallelly(ItemInfo[] sources, Func<ItemInfo, string> commandConverter)
+    /// <param name="commandInfos"> コマンド情報 </param>
+    public void RunParallelly(IEnumerable<CommandInfo> commandInfos)
     {
-        sources
+        commandInfos
         .AsParallel()
-        .ForAll(item =>
+        .ForAll(commandInfo =>
         {
             try
             {
                 var info = new ProcessStartInfo("ffmpeg")
                 {
-                    // FFmpegのコマンドを取得する
-                    Arguments = commandConverter(item),
+                    // FFmpegコマンド
+                    Arguments = commandInfo.Command,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
@@ -45,7 +45,7 @@ internal class ParallelCommandProcessor : IDisposable
                 // プロセス作成
                 using var process = new Process { StartInfo = info };
 
-                // リストはスレッドセーフではないためロックをかける
+                // リストはスレッドセーフではないため、ロックをかける
                 lock (ParallelLock)
                 {
                     // 実行中プロセスとして覚えておく
@@ -59,20 +59,20 @@ internal class ParallelCommandProcessor : IDisposable
                 // キャンセルされたらここで終了
                 _cancelable.Token.ThrowIfCancellationRequested();
 
-                // リストはスレッドセーフではないためロックをかける
+                // リストはスレッドセーフではないため、ロックをかける
                 lock (ParallelLock)
                 {
                     // 実行完了したため、リストから削除する
                     _processes.Remove(process);
 
                     // 処理済みファイルを記録
-                    CompletedFiles.Add(item);
+                    CompletedFiles.Add(commandInfo.Source);
 
                     // 進捗更新イベント発行
                     OnProgressed?.Invoke();
                 }
 
-                System.Diagnostics.Debug.WriteLine($"arg:{info.Arguments}");
+                Debug.WriteLine($"arg:{info.Arguments}");
             }
             catch (OperationCanceledException)
             {
@@ -80,12 +80,11 @@ internal class ParallelCommandProcessor : IDisposable
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine($"{e}");
+                Debug.WriteLine($"{e}");
             }
         });
 
-        System.Diagnostics.Debug.WriteLine("処理終了");
-
+        Debug.WriteLine("処理終了");
     }
 
     /// <summary>

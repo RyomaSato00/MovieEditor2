@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -106,7 +107,14 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task Compress()
     {
-        await Run(FFmpegCommandConverter.ToCompressCommand);
+        try
+        {
+            await Run(FFmpegCommandConverter.ToCompressCommand);
+        }
+        catch(Exception e)
+        {
+            System.Diagnostics.Debug.WriteLine($"{e}");
+        }
     }
 
     /// <summary>
@@ -116,7 +124,14 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task GenerateImages()
     {
-        await Run(FFmpegCommandConverter.ToImagesCommand);
+        try
+        {
+            await Run(FFmpegCommandConverter.ToImagesCommand);
+        }
+        catch(Exception e)
+        {
+            System.Diagnostics.Debug.WriteLine($"{e}");
+        }
     }
 
     /// <summary>
@@ -127,20 +142,26 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     private async Task Run(Func<ItemInfo, CommonSettingBoardViewModel, string, string> commandConverter)
     {
         // チェックが入っているアイテムだけを入力とする
-        var sources = Items.Where(item => item.IsSelected).ToArray();
+        var commandInfos = Items
+            .Where(item => item.IsSelected)
+            .Select(item => new CommandInfo(item, commandConverter(item, CommonSettingUI, OutputDirectory)))
+            .ToArray();
+
+        // コマンド（編集後）
+        var edited = await OpenCommandDialog(commandInfos);
+
+        // コマンド（編集後）がnullの場合はキャンセル要求のため、ここで終了
+        if (edited is null) return;
+
+        commandInfos = edited.ToArray();
 
         using var process = new ParallelCommandProcessor();
 
         // 処理進捗ダイアログの表示
-        _ = OpenProgressDialog(process, sources.Length);
+        _ = OpenProgressDialog(process, commandInfos.Length);
 
         // 並列処理実行
-        await Task.Run(
-            () => process.RunParallelly(
-                sources,
-                item => commandConverter(item, CommonSettingUI, OutputDirectory)
-                )
-            );
+        await Task.Run(() => process.RunParallelly(commandInfos));
 
         // 並列処理が終了したらダイアログを閉じる
         DialogHost.Close(MainWindowDialogIdentifier);
@@ -165,13 +186,25 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
     /// <returns></returns>
     private async Task JoinFiles(ItemInfo[] sources)
     {
+        // 時間のトリミングだけしたいため、共通設定は影響が低いようにする
+        var defaultSetting = new CommonSettingBoardViewModel { Codec = "h264", AudioDisable = false };
+
+        var commandInfos = sources
+            .Select(item => new CommandInfo(item, FFmpegCommandConverter.ToCompressCommand(item, defaultSetting, MovieFileProcessor.JoinCacheDir, false)))
+            .ToArray();
+
+        // コマンド（編集後）
+        var edited = await OpenCommandDialog(commandInfos);
+
+        // コマンド（編集後）がnullの場合はキャンセル要求のため、ここで終了
+        if (edited is null) return;
+
+        commandInfos = edited.ToArray();
+
         using var process = new ParallelCommandProcessor();
 
         // 処理進捗ダイアログの表示
         _ = OpenProgressDialog(process, sources.Length);
-
-        // 時間のトリミングだけしたいため、共通設定は影響が低いようにする
-        var defaultSetting = new CommonSettingBoardViewModel { Codec = "h264", AudioDisable = false };
 
         // 時間のトリミング後のファイルを置いておくディレクトリが未作成のときはディレクトリを作成する
         if (false == Directory.Exists(MovieFileProcessor.JoinCacheDir))
@@ -180,12 +213,7 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
         }
 
         // 並列処理実行（時間トリミング）
-        await Task.Run(
-            () => process.RunParallelly(
-                sources,
-                item => FFmpegCommandConverter.ToCompressCommand(item, defaultSetting, MovieFileProcessor.JoinCacheDir, false)
-            )
-        );
+        await Task.Run(() => process.RunParallelly(commandInfos));
 
         // 並列処理が終了したらダイアログを閉じる
         DialogHost.Close(MainWindowDialogIdentifier);
@@ -199,8 +227,6 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
         // 結合後の動画をリストに追加
         Items.Add(new ItemInfo(joined));
 
-        System.Diagnostics.Debug.WriteLine("join end");
-
         // 「処理済みファイルをリストから削除しますか？」
         var isDeleteRequested = await OpenDeleteCompletedDialog();
 
@@ -212,6 +238,25 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
                 Items.Remove(file);
             }
         }
+    }
+
+    /// <summary>
+    /// コマンド確認・編集ダイアログを表示する
+    /// </summary>
+    /// <param name="commandInfos"></param>
+    /// <returns>編集後のコマンド情報またはnull（キャンセル時）</returns>
+    private static async Task<IEnumerable<CommandInfo>?> OpenCommandDialog(IEnumerable<CommandInfo> commandInfos)
+    {
+        // ダイアログのViewModel生成
+        var viewModel = new CommandDialogViewModel(commandInfos);
+
+        // ダイアログのViewを生成
+        var view = new CommandDialog { DataContext = viewModel };
+
+        // ダイアログ表示
+        var result = await DialogHost.Show(view, MainWindowDialogIdentifier, null, null, null);
+
+        return result as IEnumerable<CommandInfo>;
     }
 
     /// <summary>
@@ -250,9 +295,9 @@ internal partial class MainWindowViewModel : ObservableObject, IDisposable
         // ダイアログ表示
         object? result = await DialogHost.Show(view, MainWindowDialogIdentifier, null, null, null);
 
-        // 「はい」か「いいえ」を押せばここにはこないはず
         if (result is null)
         {
+            // 「はい」か「いいえ」を押せばここにはこないはず
             System.Diagnostics.Debug.WriteLine("result is null");
             throw new NullReferenceException();
         }
