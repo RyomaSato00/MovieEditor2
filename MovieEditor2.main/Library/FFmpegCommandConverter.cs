@@ -28,8 +28,14 @@ internal class FFmpegCommandConverter
         // スケールのコマンドを取得
         var scaleArg = ToScaleArg(itemInfo.OriginalInfo, setting.Width, setting.Height);
 
+        // クリッピングのコマンドを取得
+        var cropArg = ToCrop(itemInfo);
+
+        // 回転のコマンドを取得
+        var rotateArg = ToRotate(itemInfo.Rotation);
+
         // -vfの可否
-        if (scaleArg is not null || itemInfo.Clipping != Rect.Empty || itemInfo.Speed is not null && itemInfo.Speed > 0)
+        if (scaleArg is not null || cropArg is not null || rotateArg is not null || itemInfo.Speed is not null && itemInfo.Speed > 0)
         {
             argList.Add("-vf");
         }
@@ -41,9 +47,15 @@ internal class FFmpegCommandConverter
         }
 
         // クリッピング指定
-        if(itemInfo.Clipping != Rect.Empty)
+        if(cropArg is not null)
         {
-            argList.Add($"crop={itemInfo.Clipping.Width:F2}:{itemInfo.Clipping.Height:F2}:{itemInfo.Clipping.X:F2}:{itemInfo.Clipping.Y:F2}");
+            argList.Add(cropArg);
+        }
+
+        // 回転指定
+        if (rotateArg is not null)
+        {
+            argList.Add(rotateArg);
         }
 
         // 速度倍率
@@ -229,5 +241,38 @@ internal class FFmpegCommandConverter
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// クリッピングのコマンドを作成する
+    /// </summary>
+    /// <param name="info"></param>
+    /// <returns></returns>
+    private static string? ToCrop(ItemInfo info)
+    {
+        // クリッピング指定なしのときはnullを返す
+        if (info.Clipping == Rect.Empty) return null;
+
+        var x = info.Clipping.X >= 0 ? info.Clipping.X : 0;
+
+        var y = info.Clipping.Y >= 0 ? info.Clipping.Y : 0;
+
+        var width = info.Clipping.Width + x <= info.OriginalInfo.Width ? info.Clipping.Width : info.OriginalInfo.Width - x;
+
+        var height = info.Clipping.Height + y <= info.OriginalInfo.Height ? info.Clipping.Height : info.OriginalInfo.Height - y;
+
+        return $"crop={width:F2}:{height:F2}:{x:F2}:{y:F2}";
+    }
+
+    private static string? ToRotate(RotationID rotate)
+    {
+        return rotate switch
+        {
+            RotationID.Default => null,
+            RotationID.R90 => "transpose=1 -metadata:s:v:0 rotate=0",
+            RotationID.R180 => "-hflip,vflip -metadata:s:v:0 rotate=0",
+            RotationID.L90 => "transpose=2 -metadata:s:v:0 rotate=0",
+            _ => null
+        };
     }
 }

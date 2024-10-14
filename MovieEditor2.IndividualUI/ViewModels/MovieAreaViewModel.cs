@@ -36,6 +36,9 @@ public partial class MovieAreaViewModel : ObservableObject
     /// <summary> 動画再生中？ </summary>
     [ObservableProperty] private bool _isPlaying = false;
 
+    /// <summary> 動画の回転角 </summary>
+    [ObservableProperty] private double _movieAngle = 0;
+
     /// <summary> 動画の音量 </summary>
     // [ObservableProperty] private double _audioVolume;
 
@@ -57,6 +60,7 @@ public partial class MovieAreaViewModel : ObservableObject
         Item = item;
         ClippingBoardUI.UpdateItem(item);
         LoadMovie();
+        MovieAngle = 0;
     }
 
     /// <summary>
@@ -247,5 +251,13 @@ public partial class MovieAreaViewModel : ObservableObject
     [RelayCommand] private void Reload()
     {
         LoadMovie();
+    }
+
+    /// <summary>
+    /// 動画の再生・停止を切り替える
+    /// </summary>
+    [RelayCommand] private void TogglePlay()
+    {
+        IsPlaying = !IsPlaying;
     }
 }

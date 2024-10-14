@@ -38,41 +38,36 @@ public partial class TrimmingInfo : ObservableObject
         _originalDuration = originalDuration;
         Duration = originalDuration;
         _filePath = filePath;
-        var name = Path.GetFileNameWithoutExtension(filePath);
 
         // 開始位置のサムネイル取得
-        UpdateStartImage(filePath, name, TimeSpan.Zero);
+        UpdateStartImage(TimeSpan.Zero);
 
 
         // 終了位置の時刻（動画長さ - 1フレーム）を取得
         var endPosition = originalDuration.TotalSeconds - 1 / frameRate;
 
         // 終了位置のサムネイル取得
-        UpdateEndImage(filePath, name, TimeSpan.FromSeconds(endPosition));
+        UpdateEndImage(TimeSpan.FromSeconds(endPosition));
     }
 
     /// <summary>
     /// トリミング開始位置のサムネイルを更新する
     /// </summary>
-    /// <param name="filePath"></param>
-    /// <param name="fileName"></param>
     /// <param name="point"></param>
-    public void UpdateStartImage(string filePath, string fileName, TimeSpan point)
+    private void UpdateStartImage(TimeSpan point)
     {
-        var name = $"{fileName}_{point:hhmmssfff}";
-        TrimStartImage = MovieFileProcessor.GetThumbnailPath(filePath, name, point);
+        var name = $"{Path.GetFileNameWithoutExtension(_filePath)}_{point:hhmmssfff}";
+        TrimStartImage = MovieFileProcessor.GetThumbnailPath(_filePath, name, point);
     }
 
     /// <summary>
     /// トリミング終了位置のサムネイルを更新する
     /// </summary>
-    /// <param name="filePath"></param>
-    /// <param name="fileName"></param>
     /// <param name="point"></param>
-    public void UpdateEndImage(string filePath, string fileName, TimeSpan point)
+    private void UpdateEndImage(TimeSpan point)
     {
-        var name =$"{fileName}_{point:hhmmssfff}";
-        TrimEndImage = MovieFileProcessor.GetThumbnailPath(filePath, name, point);
+        var name =$"{Path.GetFileNameWithoutExtension(_filePath)}_{point:hhmmssfff}";
+        TrimEndImage = MovieFileProcessor.GetThumbnailPath(_filePath, name, point);
     }
 
     /// <summary>
@@ -90,6 +85,9 @@ public partial class TrimmingInfo : ObservableObject
 
         // 動画長さを取得
         Duration = endPoint - startPoint;
+
+        // サムネイルを更新
+        Task.Run(() => UpdateStartImage(startPoint));
     }
 
     /// <summary>
@@ -107,5 +105,8 @@ public partial class TrimmingInfo : ObservableObject
 
         // 動画長さを取得
         Duration = endPoint - startPoint;
+
+        // サムネイルを更新
+        Task.Run(() => UpdateEndImage(endPoint));
     }
 }

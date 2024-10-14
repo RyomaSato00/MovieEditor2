@@ -57,28 +57,22 @@ public partial class IndividualSlideViewModel : ObservableObject
     /// トリミング開始位置を指定する
     /// </summary>
     /// <param name="point"></param>
-    [RelayCommand] private void PinStartPoint(TimeSpan point)
+    [RelayCommand] private void PinStartPoint()
     {
         if(Item is null) return;
 
-        Item.Trimming.StartPoint = point;
-
-        // 開始位置のサムネイル取得
-        Item.Trimming.UpdateStartImage(Item.FilePath, Item.FileNameWithoutExtension, point);
+        Item.Trimming.StartPoint = MovieAreaUI.CurrentTime;
     }
 
     /// <summary>
     /// トリミング終了位置を指定する
     /// </summary>
     /// <param name="point"></param>
-    [RelayCommand] private void PinEndPoint(TimeSpan point)
+    [RelayCommand] private void PinEndPoint()
     {
         if(Item is null) return;
 
-        Item.Trimming.EndPoint = point;
-
-        // 終了位置のサムネイル取得
-        Item.Trimming.UpdateEndImage(Item.FilePath, Item.FileNameWithoutExtension, point);
+        Item.Trimming.EndPoint = MovieAreaUI.CurrentTime;
     }
 
     /// <summary>
@@ -110,20 +104,36 @@ public partial class IndividualSlideViewModel : ObservableObject
     }
 
     /// <summary>
-    /// 動画の再生・停止を切り替える
+    /// 左に90度回転させる
     /// </summary>
-    [RelayCommand] private void TogglePlay()
+    [RelayCommand] private void LeftRotate()
     {
-        MovieAreaUI.IsPlaying = !MovieAreaUI.IsPlaying;
+        if (Item is null) return;
+
+        // 動画UIを左に90度回転
+        MovieAreaUI.MovieAngle -= 90;
+
+        // 回転状態を取得
+        var angle = (int)Item.Rotation - 1;
+        if (angle < 0) angle = (int)RotationID.Count - 1;
+
+        Item.Rotation = (RotationID)angle;
     }
 
     /// <summary>
-    /// クリッピング範囲リセット処理
+    /// 右に90度回転させる
     /// </summary>
-    [RelayCommand] private void ResetClip()
+    [RelayCommand] private void RightRotate()
     {
-        if(Item is null) return;
+        if (Item is null) return;
 
-        MovieAreaUI.ClippingBoardUI.ResetClipping();
+        // 動画UIを右に90度回転
+        MovieAreaUI.MovieAngle += 90;
+
+        // 回転状態を取得
+        var angle = (int)Item.Rotation + 1;
+        if (angle >= (int)RotationID.Count) angle = 0;
+
+        Item.Rotation = (RotationID)angle;
     }
 }

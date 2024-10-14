@@ -16,16 +16,6 @@ namespace MovieEditor2.IndividualUI;
 /// </summary>
 public partial class TrimmingArea : UserControl
 {
-    public static readonly DependencyProperty CurrentTimeProperty =
-    DependencyProperty.Register(nameof(CurrentTime), typeof(TimeSpan), typeof(TrimmingArea), new PropertyMetadata(TimeSpan.Zero));
-
-    /// <summary> 動画再生現在時刻 </summary>
-    public TimeSpan CurrentTime
-    {
-        get => (TimeSpan)GetValue(CurrentTimeProperty);
-        set => SetValue(CurrentTimeProperty, value);
-    }
-
     public TrimmingArea()
     {
         InitializeComponent();

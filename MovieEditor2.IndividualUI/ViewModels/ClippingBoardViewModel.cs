@@ -116,7 +116,7 @@ public partial class ClippingBoardViewModel : ObservableObject
     /// <summary>
     /// クリッピング範囲リセット処理
     /// </summary>
-    public void ResetClipping()
+    [RelayCommand] private void ResetClipping()
     {
         if (_item is null) return;
 

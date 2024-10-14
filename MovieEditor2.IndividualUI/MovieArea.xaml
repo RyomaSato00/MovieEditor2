@@ -56,12 +56,30 @@
             <!--動画-->
             <MediaElement Grid.Column="0" Name="MoviePlayer" LoadedBehavior="Manual" ScrubbingEnabled="True"
                 HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" MediaOpened="MoviePlayer_MediaOpened"
-                SizeChanged="MoviePlayer_SizeChanged" >
+                SizeChanged="MoviePlayer_SizeChanged" RenderTransformOrigin="0.5, 0.5" >
+                <!--クリックしたら再生・停止を切り替える-->
+                <xamlBehaviorsWpf:Interaction.Triggers>
+                    <xamlBehaviorsWpf:EventTrigger EventName="MouseLeftButtonDown" >
+                        <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding TogglePlayCommand}" />
+                    </xamlBehaviorsWpf:EventTrigger>
+                </xamlBehaviorsWpf:Interaction.Triggers>
+
+                <!--動画の回転角制御-->
+                <MediaElement.LayoutTransform>
+                    <RotateTransform Angle="{Binding MovieAngle}" />
+                </MediaElement.LayoutTransform>
             </MediaElement>
+
+            <!--ClippingBoardからMovieAreaViewModelへアクセスするためのProxy-->
+            <FrameworkElement Name="DataContextProxy" DataContext="{Binding}" />
 
             <!--クリッピング用キャンバス-->
             <local:ClippingBoard Grid.Column="0" Margin="8" x:Name="MyClippingBoard" DataContext="{Binding ClippingBoardUI}" 
-                Target="{Binding ElementName=MoviePlayer}" >
+                Target="{Binding ElementName=MoviePlayer}" RenderTransformOrigin="0.5, 0.5" >
+                <!--動画の回転角制御-->
+                <local:ClippingBoard.LayoutTransform>
+                    <RotateTransform Angle="{Binding DataContext.MovieAngle, Source={x:Reference DataContextProxy}}" />
+                </local:ClippingBoard.LayoutTransform>
             </local:ClippingBoard>
 
             <Grid Grid.Column="1">
@@ -147,7 +165,6 @@
                         DragStartedCommand="{Binding DragStartedCommand}"
                         DragCompletedCommand="{Binding DragCompletedCommand}" />
                 </xamlBehaviorsWpf:Interaction.Behaviors>
-
             </Slider>
 
             <!--現在時刻-->

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MovieEditor2.IndividualUI"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:xamlBehaviorsWpf="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -13,9 +14,8 @@
             <Setter Property="Height" Value="120" />
         </Style>
 
-        <Style x:Key="TextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}" >
+        <Style x:Key="TextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}" >
             <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="Width" Value="80" />
             <Setter Property="VerticalContentAlignment" Value="Bottom" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="FontFamily" Value="Consolas" />
@@ -38,27 +38,28 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Image Grid.Row="0" Grid.Column="0" Style="{StaticResource ImageStyle}" Source="{Binding Item.Trimming.TrimStartImage}" />  <!--トリミング開始位置Image-->
+        <Image Grid.Row="0" Grid.Column="0" Style="{StaticResource ImageStyle}" Source="{Binding Item.Trimming.TrimStartImage}" >  <!--トリミング開始位置Image-->
+            <!--クリックでトリミング開始位置を指定。CommandParameterはMovieAreaのCurrentを指定-->
+            <xamlBehaviorsWpf:Interaction.Triggers>
+                <xamlBehaviorsWpf:EventTrigger EventName="MouseLeftButtonDown" >
+                    <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding PinStartPointCommand}" />
+                </xamlBehaviorsWpf:EventTrigger>
+            </xamlBehaviorsWpf:Interaction.Triggers>
+        </Image>
+
         <materialDesign:PackIcon Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Kind="ArrowRightBold" Width="20" Height="20" />
-        <Image Grid.Row="0" Grid.Column="2" Style="{StaticResource ImageStyle}" Source="{Binding Item.Trimming.TrimEndImage}" />  <!--トリミング終了位置Image-->
+        <Image Grid.Row="0" Grid.Column="2" Style="{StaticResource ImageStyle}" Source="{Binding Item.Trimming.TrimEndImage}" >  <!--トリミング終了位置Image-->
+            <!--クリックでトリミング終了位置を指定。CommandParameterはMovieAreaのCurrentを指定-->
+            <xamlBehaviorsWpf:Interaction.Triggers>
+                <xamlBehaviorsWpf:EventTrigger EventName="MouseLeftButtonDown" >
+                    <xamlBehaviorsWpf:InvokeCommandAction Command="{Binding PinEndPointCommand}" />
+                </xamlBehaviorsWpf:EventTrigger>
+            </xamlBehaviorsWpf:Interaction.Triggers>
+        </Image>
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
-            <!--トリミング開始位置を指定。CommandParameterはMovieAreaのCurrentを指定-->
-            <Button Command="{Binding PinStartPointCommand}" CommandParameter="{Binding CurrentTime, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                Style="{StaticResource MaterialDesignIconForegroundButton}" >
-                <materialDesign:PackIcon Kind="MovieOpenCheck" Width="18" Height="18" />
-            </Button>
-            <TextBox Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="開始時刻" Text="{Binding Item.Trimming.StartPoint, Converter={StaticResource TimeSpan2StringConverter}}" />
-        </StackPanel>
+        <TextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="開始時刻" Text="{Binding Item.Trimming.StartPoint, Converter={StaticResource TimeSpan2StringConverter}}" />
 
-        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
-            <!--トリミング終了位置を指定。CommandParameterはMovieAreaのCurrentを指定-->
-            <Button Command="{Binding PinEndPointCommand}" CommandParameter="{Binding CurrentTime, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                Style="{StaticResource MaterialDesignIconForegroundButton}" >
-                <materialDesign:PackIcon Kind="MovieOpenCheck" Width="18" Height="18" />
-            </Button>
-            <TextBox Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="終了時刻" Text="{Binding Item.Trimming.EndPoint, Converter={StaticResource TimeSpan2StringConverter}}" />
-        </StackPanel>
+        <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource TextBoxStyle}" materialDesign:HintAssist.Hint="終了時刻" Text="{Binding Item.Trimming.EndPoint, Converter={StaticResource TimeSpan2StringConverter}}" />
 
         <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,16,0,0"
             Text="{Binding Item.Trimming.Duration, StringFormat=総再生時間 {0:mm\\:ss\\.fff}}" FontFamily="Consolas" />

@@ -25,7 +25,7 @@
                 <ColumnDefinition Width="360" />    <!--編集設定エリア-->
             </Grid.ColumnDefinitions>
 
-            <!--DataGridのItemからViewModelへアクセスするためのProxy-->
+            <!--MovieAreaaからIndividualViewModelへアクセスするためのProxy-->
             <FrameworkElement Name="DataContextProxy" DataContext="{Binding}" />
 
             <!--動画表示-->
@@ -61,11 +61,11 @@
                     <TreeViewItem>
                         <TreeViewItem.Header>
                             <!--動画表示エリアから動画の現在時刻を取得する-->
-                            <local:TrimmingArea CurrentTime="{Binding MovieAreaUI.CurrentTime}" />
+                            <local:TrimmingArea />
                         </TreeViewItem.Header>
                     </TreeViewItem>
                 </TreeViewItem>
-                <TreeViewItem >
+                <TreeViewItem IsExpanded="True" >
                     <TreeViewItem.Header>
                         <TextBlock Text="クリッピング" FontSize="18" FontWeight="Bold" />
                     </TreeViewItem.Header>
@@ -75,18 +75,32 @@
                         </TreeViewItem.Header>
                     </TreeViewItem>
                 </TreeViewItem>
-                <TreeViewItem >
+                <TreeViewItem IsExpanded="True" >
                     <TreeViewItem.Header>
                         <TextBlock Text="回転" FontSize="18" FontWeight="Bold" />
                     </TreeViewItem.Header>
+                    <TreeViewItem>
+                        <TreeViewItem.Header>
+                            <StackPanel Orientation="Horizontal" >
+                                <Button Style="{StaticResource MaterialDesignPaperButton}"
+                                    Command="{Binding LeftRotateCommand}">
+                                    <materialDesign:PackIcon Kind="FileRotateLeftOutline" />
+                                </Button>
+                                <Button Style="{StaticResource MaterialDesignPaperButton}" Margin="8,0,0,0"
+                                    Command="{Binding RightRotateCommand}">
+                                    <materialDesign:PackIcon Kind="FileRotateRightOutline" />
+                                </Button>
+                            </StackPanel>
+                        </TreeViewItem.Header>
+                    </TreeViewItem>
                 </TreeViewItem>
-                <TreeViewItem >
+                <TreeViewItem IsExpanded="True" >
                     <TreeViewItem.Header>
                         <TextBlock Text="再生速度" FontSize="18" FontWeight="Bold" />
                     </TreeViewItem.Header>
                     <TreeViewItem>
                         <TreeViewItem.Header>
-                            <TextBox Text="{Binding Item.Speed}" materialDesign:HintAssist.Hint="速度倍率" Width="80" FontFamily="Consolas" VerticalAlignment="Center" Margin="32,0,0,0" />
+                            <TextBox Text="{Binding Item.Speed}" Style="{StaticResource MaterialDesignOutlinedTextBox}" materialDesign:HintAssist.Hint="速度倍率" Width="90" FontFamily="Consolas" VerticalAlignment="Center" Margin="32,0,0,0" />
                         </TreeViewItem.Header>
                     </TreeViewItem>
                 </TreeViewItem>
@@ -96,7 +110,7 @@
 
     <UserControl.InputBindings>
         <!--Pキーを押したら動画の再生・停止（個別編集画面時）-->
-        <KeyBinding Key="P" Command="{Binding TogglePlayCommand}" />
+        <KeyBinding Key="P" Command="{Binding MovieAreaUI.TogglePlayCommand}" />
         
         <!--Sを押したらトリミング開始位置指定-->
         <KeyBinding Key="S" Command="{Binding PinStartPointCommand}" CommandParameter="{Binding MovieAreaUI.CurrentTime}" />
@@ -109,5 +123,8 @@
 
         <!--Zを押したら次の動画へ-->
         <KeyBinding Key="Z" Command="{Binding NextMovieCommand}" />
+
+        <!--F5を押したらリロード-->
+        <KeyBinding Key="F5" Command="{Binding MovieAreaUI.ReloadCommand}" />
     </UserControl.InputBindings>
 </UserControl>

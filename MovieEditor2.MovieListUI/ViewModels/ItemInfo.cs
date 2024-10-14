@@ -36,6 +36,9 @@ public partial class ItemInfo : ObservableObject
     /// <summary> 動画クリッピング情報 </summary>
     [ObservableProperty] private Rect _clipping = Rect.Empty;
 
+    /// <summary> 動画回転情報 </summary>
+    public RotationID Rotation { get; set; } = RotationID.Default;
+
     // 速度倍率
     [ObservableProperty] private double? _speed = null;
 
@@ -57,4 +60,21 @@ public partial class ItemInfo : ObservableObject
     {
         IsSelectedChanged?.Invoke(this, new EventArgs());
     }
+}
+
+public enum RotationID
+{
+    /// <summary> 回転なし </summary>
+    Default,
+
+    /// <summary> 右に90度回転 </summary>
+    R90,
+
+    /// <summary> 右に180度回転 </summary>
+    R180,
+
+    /// <summary> 左に90度回転 </summary>
+    L90,
+
+    Count
 }

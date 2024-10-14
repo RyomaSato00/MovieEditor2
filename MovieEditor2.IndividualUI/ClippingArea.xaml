@@ -41,7 +41,7 @@
             </TextBlock.Text>
         </TextBlock>
 
-        <Button Grid.Row="2" Content="リセット" Command="{Binding ResetClipCommand}" />
+        <Button Grid.Row="2" Content="リセット" Command="{Binding MovieAreaUI.ClippingBoardUI.ResetClippingCommand}" />
 
         </StackPanel>
     </Grid>
