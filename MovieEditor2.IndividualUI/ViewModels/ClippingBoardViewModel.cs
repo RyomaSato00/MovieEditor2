@@ -180,7 +180,8 @@ public partial class ClippingBoardViewModel : ObservableObject
         if (_item is null) return;
 
         // クリッピング範囲を動画実サイズ寸法に変換
-        _item.Clipping = ToOriginalScale(rect);
+        var originalScale = ToOriginalScale(rect);
+        _item.Clipping = ToWithinRange(originalScale);
     }
 
     /// <summary>
@@ -248,6 +249,23 @@ public partial class ClippingBoardViewModel : ObservableObject
                 Width = userControlScale.Width * _item.OriginalInfo.Width / _mediaElementSize.Width,
                 Height = userControlScale.Height * _item.OriginalInfo.Height / _mediaElementSize.Height
             };
+        }
+    }
+
+    private Rect ToWithinRange(Rect source)
+    {
+        if (_item is null)
+        {
+            return Rect.Empty;
+        }
+        else
+        {
+            var x = source.X >= 0 ? source.X : 0;
+            var y = source.Y >= 0 ? source.Y : 0;
+            var width = source.Width + x <= _item.OriginalInfo.Width ? source.Width : _item.OriginalInfo.Width - x;
+            var height = source.Height + y <= _item.OriginalInfo.Height ? source.Height : _item.OriginalInfo.Height - y;
+
+            return new Rect(x, y, width, height);
         }
     }
 

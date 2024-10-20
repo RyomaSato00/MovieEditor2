@@ -25,43 +25,12 @@ internal class FFmpegCommandConverter
             $"-y -i \"{itemInfo.FilePath}\""
         };
 
-        // スケールのコマンドを取得
-        var scaleArg = ToScaleArg(itemInfo.OriginalInfo, setting.Width, setting.Height);
+        // vfコマンドを取得
+        var vf = ToVf(itemInfo, setting);
 
-        // クリッピングのコマンドを取得
-        var cropArg = ToCrop(itemInfo);
-
-        // 回転のコマンドを取得
-        var rotateArg = ToRotate(itemInfo.Rotation);
-
-        // -vfの可否
-        if (scaleArg is not null || cropArg is not null || rotateArg is not null || itemInfo.Speed is not null && itemInfo.Speed > 0)
+        if (vf is not null)
         {
-            argList.Add("-vf");
-        }
-
-        // スケール指定
-        if(scaleArg is not null)
-        {
-            argList.Add(scaleArg);
-        }
-
-        // クリッピング指定
-        if(cropArg is not null)
-        {
-            argList.Add(cropArg);
-        }
-
-        // 回転指定
-        if (rotateArg is not null)
-        {
-            argList.Add(rotateArg);
-        }
-
-        // 速度倍率
-        if(itemInfo.Speed is not null && itemInfo.Speed > 0)
-        {
-            argList.Add($"setpts=PTS/{itemInfo.Speed} -af atempo={itemInfo.Speed}");
+            argList.Add(vf);
         }
 
         // フレームレート
@@ -181,6 +150,99 @@ internal class FFmpegCommandConverter
     }
 
     /// <summary>
+    /// VFコマンド生成処理
+    /// </summary>
+    /// <param name="itemInfo"></param>
+    /// <param name="setting"></param>
+    /// <param name="outputDirectory"></param>
+    /// <returns></returns>
+    private static string? ToVf(ItemInfo itemInfo, CommonSettingBoardViewModel setting)
+    {
+        // スケール指定あり？
+        var isScaleReserved = setting.Width >= 0 || setting.Height >= 0;
+
+        // クリッピング指定あり？
+        var isClippingReserved = itemInfo.Clipping != Rect.Empty;
+
+        // 回転指定あり？
+        var isRotationReserved = itemInfo.Rotation != RotationID.Default;
+
+        // 速度倍率指定あり？
+        var isSpeedReserved = itemInfo.Speed is not null && itemInfo.Speed > 0;
+
+        // すべて指定なしのとき
+        if (isScaleReserved == false && isClippingReserved == false && isRotationReserved == false && isSpeedReserved == false)
+        {
+            return null;
+        }
+        else
+        {
+            var vfList = new List<string>();
+            var vfSubList = new List<string>();
+            double clipWidth = 0, clipHeight = 0;
+
+            // クリッピング指定あり
+            if (isClippingReserved)
+            {
+                var cropArg = ToCrop(itemInfo, out clipWidth, out clipHeight);
+
+                if (cropArg is not null)
+                {
+                    vfList.Add(cropArg);
+                }
+            }
+
+            // スケール指定あり
+            if (isScaleReserved)
+            {
+                // 元動画のサイズを取得
+                var originWidth = itemInfo.OriginalInfo.Width;
+                var originHeight = itemInfo.OriginalInfo.Height;
+
+                // クリッピング指定あり？
+                if (isClippingReserved)
+                {
+                    // 元動画のサイズはクリッピング後のサイズとする
+                    originWidth = (int)clipWidth;
+                    originHeight = (int)clipHeight;
+                }
+
+                var scaleArg = ToScale(setting.Width, setting.Height, originWidth, originHeight);
+
+                if (scaleArg is not null)
+                {
+                    vfList.Add(scaleArg);
+                }
+            }
+
+            // 回転指定あり
+            if (isRotationReserved)
+            {
+                var rotateArg = ToRotate(itemInfo.Rotation);
+
+                if (rotateArg is not null)
+                {
+                    vfList.Add(rotateArg);
+
+                    // 回転後の角度を0度と定義する
+                    vfSubList.Add("-metadata:s:v:0 rotate=0");
+                }
+            }
+
+            // 速度倍率指定あり
+            if (isSpeedReserved)
+            {
+                vfList.Add($"setpts=PTS/{itemInfo.Speed}");
+
+                // 音声の速度も同時に変更
+                vfSubList.Add($"-af atempo={itemInfo.Speed}");
+            }
+
+            return $"-vf \"{string.Join(',', vfList)}\" {string.Join(' ', vfSubList)}";
+        }
+    }
+
+    /// <summary>
     /// スケールのコマンドを作成する
     /// </summary>
     /// <remarks>
@@ -190,7 +252,7 @@ internal class FFmpegCommandConverter
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <returns></returns>
-    private static string? ToScaleArg(MovieInfo info, int width, int height)
+    private static string? ToScale(int width, int height, int originWidth, int originHeight)
     {
         // どちらも正値のときはそのまま
         if (0 < width && 0 < height)
@@ -204,9 +266,9 @@ internal class FFmpegCommandConverter
             int autoWidth = 0;
 
             // 0除算回避
-            if (0 != info.Height)
+            if (0 != originHeight)
             {
-                autoWidth = height * info.Width / info.Height;
+                autoWidth = height * originWidth / originHeight;
             }
 
             // 解像度は偶数にする必要がある。
@@ -224,9 +286,9 @@ internal class FFmpegCommandConverter
             int autoHeight = 0;
 
             // 0除算回避
-            if (0 != info.Width)
+            if (0 != originWidth)
             {
-                autoHeight = width * info.Height / info.Width;
+                autoHeight = width * originHeight / originWidth;
             }
 
             // 解像度は偶数にする必要がある。
@@ -248,8 +310,11 @@ internal class FFmpegCommandConverter
     /// </summary>
     /// <param name="info"></param>
     /// <returns></returns>
-    private static string? ToCrop(ItemInfo info)
+    private static string? ToCrop(ItemInfo info, out double clipWidth, out double clipHeight)
     {
+        clipWidth = 0;
+        clipHeight = 0;
+
         // クリッピング指定なしのときはnullを返す
         if (info.Clipping == Rect.Empty) return null;
 
@@ -257,21 +322,26 @@ internal class FFmpegCommandConverter
 
         var y = info.Clipping.Y >= 0 ? info.Clipping.Y : 0;
 
-        var width = info.Clipping.Width + x <= info.OriginalInfo.Width ? info.Clipping.Width : info.OriginalInfo.Width - x;
+        clipWidth = info.Clipping.Width + x <= info.OriginalInfo.Width ? info.Clipping.Width : info.OriginalInfo.Width - x;
 
-        var height = info.Clipping.Height + y <= info.OriginalInfo.Height ? info.Clipping.Height : info.OriginalInfo.Height - y;
+        clipHeight = info.Clipping.Height + y <= info.OriginalInfo.Height ? info.Clipping.Height : info.OriginalInfo.Height - y;
 
-        return $"crop={width:F2}:{height:F2}:{x:F2}:{y:F2}";
+        return $"crop={clipWidth:F2}:{clipHeight:F2}:{x:F2}:{y:F2}";
     }
 
+    /// <summary>
+    /// 回転のコマンドを生成する
+    /// </summary>
+    /// <param name="rotate"></param>
+    /// <returns></returns>
     private static string? ToRotate(RotationID rotate)
     {
         return rotate switch
         {
             RotationID.Default => null,
-            RotationID.R90 => "transpose=1 -metadata:s:v:0 rotate=0",
-            RotationID.R180 => "-hflip,vflip -metadata:s:v:0 rotate=0",
-            RotationID.L90 => "transpose=2 -metadata:s:v:0 rotate=0",
+            RotationID.R90 => "transpose=1",
+            RotationID.R180 => "transpose=1,transpose=1",
+            RotationID.L90 => "transpose=2",
             _ => null
         };
     }
