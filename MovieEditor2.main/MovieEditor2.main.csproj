@@ -25,9 +25,14 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>main_icon.ico</ApplicationIcon>
     <UseWPF>true</UseWPF>
     <AssemblyName>MovieEditor2</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="main_icon.ico" />
+  </ItemGroup>
 
   <!--テストプロジェクトにinternalクラスへのアクセスを許可する-->
   <ItemGroup>

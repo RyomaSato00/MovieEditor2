@@ -10,6 +10,7 @@
         xmlns:commonSettingUI="clr-namespace:MovieEditor2.CommonSettingUI;assembly=MovieEditor2.CommonSettingUI"
         xmlns:individualUI="clr-namespace:MovieEditor2.IndividualUI;assembly=MovieEditor2.IndividualUI"
         Style="{StaticResource MaterialDesignWindow}"
+        Icon="main_icon.ico"
         mc:Ignorable="d"
         Title="MovieEditor" Height="450" Width="800">
     <Grid>
